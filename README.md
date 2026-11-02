@@ -12,7 +12,7 @@ This project implements the main simulation design in the proposal. This directo
 - [Code and result download](deliverables/reproducibility.zip)
 - [Example raw purchase matrix](data/example/purchase_matrix.csv), [user information](data/example/users.csv), and [true product categories](data/example/products.csv)
 
-The demonstration webpage is complete locally and publication has been authorized. GitHub rejected Pages activation because the current account plan does not support Pages for this private repository. The repository remains private. Publication requires a compatible GitHub plan or a separately authorized hosting service.
+The repository is public with the owner's authorization. The demonstration webpage is published through GitHub Pages at **https://diaomj668.github.io/236project/**. It includes interactive results and downloadable report, code, and experiment tables.
 
 ## Quick start
 
@@ -129,6 +129,6 @@ Before submission, all group members should review the report, confirm author na
 
 ## GitHub automation and publication
 
-The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow is manual and does not run on push. It is prepared to deploy `website/dist` after GitHub Pages is enabled and the intended webpage audience is confirmed. Publishing a webpage can make the report and its downloadable code/results accessible beyond a private repository.
+The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow is manual and does not run on push. Run it from the Actions tab after updating website assets to deploy `website/dist`. Both the repository and the demonstration webpage, including its report and code/results downloads, are public with the owner's authorization.
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.

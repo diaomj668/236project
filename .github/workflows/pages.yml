@@ -1,5 +1,5 @@
 name: Publish demonstration webpage
-# Manual publication only. Enable Pages and confirm the intended audience first.
+# Manual publication of the public project demonstration webpage.
 on:
   workflow_dispatch:
 permissions:
