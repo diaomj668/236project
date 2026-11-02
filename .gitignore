@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
+.env
+.env.*
+.openai/
+.sites-*/
+website/.git/
+website/.openai/
+*.tmp

@@ -1,0 +1,103 @@
+{
+  "stage": "pilot",
+  "config": {
+    "n": 1000,
+    "p": 300,
+    "k": 3
+  },
+  "means": [
+    6,
+    12
+  ],
+  "ratios": [
+    2.0
+  ],
+  "replicates": 10,
+  "seed": 23601,
+  "cells": [
+    [
+      6,
+      "low",
+      "focused",
+      2.0
+    ],
+    [
+      6,
+      "low",
+      "broad_active",
+      2.0
+    ],
+    [
+      6,
+      "medium",
+      "focused",
+      2.0
+    ],
+    [
+      6,
+      "medium",
+      "broad_active",
+      2.0
+    ],
+    [
+      6,
+      "high",
+      "focused",
+      2.0
+    ],
+    [
+      6,
+      "high",
+      "broad_active",
+      2.0
+    ],
+    [
+      12,
+      "low",
+      "focused",
+      2.0
+    ],
+    [
+      12,
+      "low",
+      "broad_active",
+      2.0
+    ],
+    [
+      12,
+      "medium",
+      "focused",
+      2.0
+    ],
+    [
+      12,
+      "medium",
+      "broad_active",
+      2.0
+    ],
+    [
+      12,
+      "high",
+      "focused",
+      2.0
+    ],
+    [
+      12,
+      "high",
+      "broad_active",
+      2.0
+    ]
+  ],
+  "python": "3.11.14",
+  "versions": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2",
+    "threadpoolctl": "3.7.0"
+  },
+  "sampling": "sequential PPS without replacement (numpy choice)",
+  "theory": "unconditional over independent uniform preferred categories; Jaccard is ratio-of-expectations approximation",
+  "intervals": "95% Student-t Monte Carlo confidence intervals for means; datasets are independent units"
+}

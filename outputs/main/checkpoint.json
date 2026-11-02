@@ -1,0 +1,8 @@
+{
+  "informative_cells": 3,
+  "difficulty_pass": true,
+  "estimated_1200_dataset_serial_hours": 0.03718830653101274,
+  "budget_pass": true,
+  "minimum_coverage": 1.0,
+  "note": "Pilot difficulty is not a method-selection criterion. Freeze settings explicitly before main."
+}

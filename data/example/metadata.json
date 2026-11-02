@@ -1,0 +1,15 @@
+{
+  "mean_purchases": 12,
+  "heterogeneity": "high",
+  "preference": "focused",
+  "r": 2.0,
+  "rep": 0,
+  "dataset_seed": 2344398831,
+  "config": {
+    "n": 1000,
+    "p": 300,
+    "k": 3
+  },
+  "source": "Reconstructed from the recorded main-experiment seed; not a new simulation replicate.",
+  "indexing": "User IDs, product IDs, and category labels are zero based."
+}
