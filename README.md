@@ -12,7 +12,7 @@ This project implements the main simulation design in the proposal. This directo
 - [Code and result download](deliverables/reproducibility.zip)
 - [Example raw purchase matrix](data/example/purchase_matrix.csv), [user information](data/example/users.csv), and [true product categories](data/example/products.csv)
 
-The demonstration webpage is complete locally. GitHub Pages publication is prepared but has not been enabled; a public webpage requires confirmation of the intended audience. The repository remains private.
+The demonstration webpage is complete locally and publication has been authorized. GitHub rejected Pages activation because the current account plan does not support Pages for this private repository. The repository remains private. Publication requires a compatible GitHub plan or a separately authorized hosting service.
 
 ## Quick start
 

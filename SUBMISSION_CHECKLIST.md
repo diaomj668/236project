@@ -13,7 +13,7 @@
 
 ## Remaining before course submission
 
-- [ ] Enable and publish the webpage after confirming its audience. A private GitHub repository does not by itself guarantee a private GitHub Pages site. The upload request did not authorize changing the repository to public.
+- [ ] Publish the webpage. Public access to the demonstration and its report/code/results downloads has been authorized while preserving the private repository. GitHub Pages activation was rejected because the current account plan does not support Pages for this private repository. A compatible plan or separately authorized hosting service is required.
 - [ ] Verify the final webpage is accessible to the instructor and classmates.
 - [ ] All group members review the report and can explain its methods and conclusions.
 - [ ] Group members verify author information and confirm there is no substantial overlap with existing research.

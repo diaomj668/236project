@@ -9,4 +9,4 @@ All project materials are in English. The original proposal is preserved unchang
 - `reproducibility.zip`: code, tests, dependency versions, recorded seeds, result tables, figures, and one reconstructed raw dataset.
 - `webpage-preview.png`: screenshot of the previously verified interactive results view.
 
-The GitHub repository is https://github.com/diaomj668/236project. The webpage is prepared for manual GitHub Pages publication, but publishing has not been enabled because its external audience requires confirmation. The repository remains private. See the root SUBMISSION_CHECKLIST.md for group review and course-submission steps.
+The GitHub repository is https://github.com/diaomj668/236project. The webpage is prepared for manual GitHub Pages publication and its public audience has been authorized. GitHub rejected activation because the current account plan does not support Pages for this private repository. The repository remains private; a compatible plan or separately authorized hosting service is required. See the root SUBMISSION_CHECKLIST.md for group review and course-submission steps.
