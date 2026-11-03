@@ -10,7 +10,10 @@ design=json.loads((OUT/'design.json').read_text())
 assert hashlib.sha256((ROOT/'outputs/main/results.csv').read_bytes()).hexdigest()==design['main_results_sha256']
 assert hashlib.sha256((ROOT/'236 proposal.pdf').read_bytes()).hexdigest()==design['original_proposal_sha256']
 replicates=design['replicates']
+r4=json.loads((OUT/'sensitivity_r4/design.json').read_text())
+assert r4['main_results_sha256']==design['main_results_sha256'] and r4['replicates']==replicates
 for kind,keys,cells in [('sensitivity_r3',['mean_purchases','heterogeneity','preference','r'],12),
+                        ('sensitivity_r4',['mean_purchases','heterogeneity','preference','r'],12),
                         ('separation',['setting','signal_degree','r','noise_users','noise_degree','degree_ratio'],18)]:
     folder=OUT/kind;x=pd.read_csv(folder/'results.csv');d=pd.read_csv(folder/'diagnostics.csv')
     assert len(x)==cells*replicates*4 and len(d)==cells*replicates
@@ -47,13 +50,13 @@ print('Supplementary counts, unchanged main/proposal hashes, paired intervals, n
 
 script=(ROOT/'website/dist/data.js').read_text()
 records=json.loads(script.removeprefix('window.RESULTS = ').rstrip(';\n'))
-assert len(records)==96 and {r['r'] for r in records}=={2.,3.}
+assert len(records)==144 and {r['r'] for r in records}=={2.,3.,4.}
 for r in records:
-    folder=ROOT/'outputs/main' if r['r']==2 else OUT/'sensitivity_r3'
+    folder=ROOT/'outputs/main' if r['r']==2 else OUT/f"sensitivity_r{r['r']:g}"
     frame=pd.read_csv(folder/'summary.csv')
     row=frame[(frame.metric=='error')&(frame.mean_purchases==r['mean_purchases'])&(frame.heterogeneity==r['heterogeneity'])&(frame.preference==r['preference'])&(frame.method==r['method'])].iloc[0]
     np.testing.assert_allclose([r['mean'],r['ci_low'],r['ci_high']],[row['mean'],row.ci_low,row.ci_high],atol=1e-14)
-print('All 96 interactive website records match saved main or supplementary summaries.')
+print('All 144 interactive website records match saved main or supplementary summaries.')
 
 # Post hoc SVD ablation: original SVD errors must equal the saved records.
 abl=pd.read_csv(OUT/'svd_ablation/results.csv')

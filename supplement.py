@@ -148,7 +148,7 @@ def analyze(folder, kind):
     rows=[row for item in saved for row in item['rows']]
     diagnostics=[d for item in saved for d in item['diagnostics']]
     df=pd.DataFrame(rows);diag=pd.DataFrame(diagnostics)
-    keys=SENS_KEYS if kind=='sensitivity_r3' else SEP_KEYS
+    keys=SENS_KEYS if kind.startswith('sensitivity') else SEP_KEYS
     df.to_csv(folder/'results.csv',index=False);diag.to_csv(folder/'diagnostics.csv',index=False)
     summary=pd.concat([summarize(df,keys+['method'],value) for value in
                        ['error','ari','coverage','permutation_error','contrast','strength_cv','runtime_seconds']],ignore_index=True)

@@ -37,6 +37,8 @@ The original r=2 main results above are unchanged. After inspecting them and use
 
 At r=3, mean 12, medium heterogeneity, and broad active users, Count error is 62.46%, Jaccard 62.33%, Weighted 34.77%, and SVD 38.00%. The paired Count-minus-Weighted difference is 27.69 percentage points (95% Monte Carlo interval 26.13 to 29.25). Some focused r=3 cells become easy; the full grid is retained.
 
+A later r=4 grid (the proposal's upper pilot value, root seed 23607, 1,200 further datasets) strengthens this pattern. In the same mean-12, medium-heterogeneity, broad-active condition, Count error is 61.05%, Jaccard 61.21%, Weighted 9.55%, and SVD 10.80%; the paired Count-minus-Weighted difference is 51.50 points (50.84 to 52.15). Count, Jaccard, and Weighted errors are below 5.4% in every focused r=4 cell. High-heterogeneity broad-active cells stay near the permutation reference because the remaining focused users buy only one or two products each.
+
 The separation experiment fixes 1,000 informative users, then adds uniform background users. The following rows are illustrative; all 18 conditions are reported in `outputs/supplement/separation/` and the report appendix.
 
 |Informative setting|Extra users|Purchases per extra user|Count error|Weighted error|SVD error|

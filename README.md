@@ -161,6 +161,15 @@ A post hoc SVD ablation reruns the unchanged bipartite SVD on the recorded focus
 python scripts/svd_ablation.py --workers 4
 ```
 
-Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`. Recovery figures in the report and webpage show the random-label reference as a dashed line.
+Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`.
+
+A post hoc r=4 sensitivity grid reruns the full original 12-cell design at r=4, the upper pilot value listed in the proposal (the pilot itself ran only r=2). It uses root seed 23607, permutation namespace [23606, 2], 100 datasets per cell, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. It was run with the locked package versions under Python 3.11.9:
+
+```bash
+python scripts/sensitivity_r4.py --workers 4
+python scripts/build_supplement_materials.py
+```
+
+`scripts/build_user_influence.py` regenerates the focused main datasets from their recorded seeds and draws the report's user-influence figure (`report-assets/user_influence.png`), comparing exact and simulated shares of block contrast supplied by the most active users. Recovery figures in the report and webpage show the random-label reference as a dashed line.
 
 Supplementary results, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.

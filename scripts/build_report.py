@@ -92,7 +92,7 @@ while i<len(lines):
  if line.startswith('!['):
   match=re.match(r'!\[(.*?)\]\((.*?)\)',line)
   p=doc.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.paragraph_format.keep_with_next=True
-  p.add_run().add_picture(str((source.parent/match[2]).resolve()),width=Inches(5.3 if 'network_example' in match[2] else 6.3 if 'sensitivity_r3' in match[2] else 6.8))
+  p.add_run().add_picture(str((source.parent/match[2]).resolve()),width=Inches(5.3 if 'network_example' in match[2] else 6.3 if 'sensitivity_r' in match[2] else 6.8))
   i+=1;continue
  if line.startswith('$$'):
   p=doc.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.paragraph_format.space_after=Pt(7)

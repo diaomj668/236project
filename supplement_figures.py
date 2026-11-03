@@ -17,11 +17,11 @@ def curve(ax,frame,x,label,color):
     err=np.vstack([frame['mean']-frame.ci_low,frame.ci_high-frame['mean']])*100
     ax.errorbar(x,y,yerr=err,marker='o',capsize=2,lw=1.6,label=label,color=color,ms=4)
 
-def make_figures(out):
+def sensitivity_figure(out,r):
     out=Path(out);figs=out/'figures';figs.mkdir(exist_ok=True)
     plt.rcParams.update({'figure.dpi':180,'font.size':10,'axes.spines.top':False,'axes.spines.right':False})
     reference=random_label_reference()
-    s=pd.read_csv(out/'sensitivity_r3/summary.csv')
+    s=pd.read_csv(out/f'sensitivity_r{r}/summary.csv')
     fig,axes=plt.subplots(2,2,figsize=(10.5,6.6),sharey=True)
     for ax,(mean,pref) in zip(axes.flat,[(m,p) for m in [6,12] for p in ['focused','broad_active']]):
         data=s[(s.metric=='error')&(s.mean_purchases==mean)&(s.preference==pref)]
@@ -32,8 +32,13 @@ def make_figures(out):
                xticks=np.arange(3),xticklabels=['Low','Medium','High'],ylabel='Misclustering rate (%)',xlabel='Activity heterogeneity',ylim=(-1,70))
         add_reference(ax,reference,scale=100)
     axes[0,0].legend(fontsize=8)
-    fig.suptitle('Exploratory sensitivity analysis at r=3 (gray band: random-label reference)',fontsize=13)
-    fig.tight_layout();fig.savefig(figs/'sensitivity_r3.png');plt.close(fig)
+    fig.suptitle(f'Exploratory sensitivity analysis at r={r} (gray band: random-label reference)',fontsize=13)
+    fig.tight_layout();fig.savefig(figs/f'sensitivity_r{r}.png');plt.close(fig)
+
+def make_figures(out):
+    out=Path(out);figs=out/'figures'
+    sensitivity_figure(out,3)
+    reference=random_label_reference()
     s=pd.read_csv(out/'separation/summary.csv');s=s[s.metric=='error']
     fig,axes=plt.subplots(2,2,figsize=(10.5,6.8),sharey=True)
     for row,setting in enumerate(['m12_r2','m6_r3']):
