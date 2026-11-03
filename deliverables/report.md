@@ -7,40 +7,40 @@ STAT 236 Course Project | Fall 2026
 
 ### Abstract
 
-A user who purchases many products creates many links in a projected product network. Whether this helps community recovery depends on the user's preferences. We compare shared-purchaser counts, Jaccard similarity, inverse-activity weighting, and normalized bipartite SVD. The frozen main design uses 1,200 simulated datasets with matched purchase totals. At mean degree 12 with focused preferences and high heterogeneity, Count has 13.04% mean error versus 48.60% for weighting. We then conduct explicitly post hoc sensitivity and separation analyses on 3,000 additional datasets. The separation design holds informative purchases fixed while adding uniform background buyers. With 1,000 informative users buying 12 products at r=2 and 50 background users buying 48 products, Count error is 59.05% and Weighted error is 36.02%; both are 35.53% without background. Thus weighting can discard useful evidence when active users are focused and protect recovery when activity is concentrated in preference-free buyers. These conditional findings do not establish a universal threshold or method ranking.
+A user who buys d products adds d(d-1)/2 links to a projected product network, so a few active users can dominate it. We ask when downweighting these users helps recover product communities. We compare shared-purchaser counts (Count), Jaccard similarity, inverse-activity weighting (Weighted), and a normalized bipartite SVD on simulated purchase data with known product categories. In the main experiment (1,200 datasets with matched total purchases), weighting hurts when active users have category preferences: at mean degree 12 with high heterogeneity, Count error is 13.04% and Weighted error is 48.60%. When active users buy without preference, every method is close to the error of random labels, so the main design cannot show whether weighting helps. Two post hoc analyses with 3,000 further datasets address this. With 1,000 informative users held fixed, adding 50 preference-free users who buy 48 products each raises Count error from 35.53% to 59.05%, while Weighted error stays at 36.02%. A stronger preference ratio (r=3) shows the same benefit within the original design. Weighting helps when high activity marks uninformative users and hurts when it marks informative ones.
 
 ### 1 Introduction
 
-User-product purchase records naturally form a bipartite network. Connecting products purchased by the same user creates a product network on which spectral clustering can identify communities. Such communities describe purchasing preferences; they need not correspond to functional similarity between products.
+Purchase records form a bipartite network of users and products. Linking two products whenever the same user buys both gives a product network, and spectral clustering on that network can recover groups of products with similar buyers. These groups reflect purchasing preferences, not necessarily similar functions.
 
-The construction is sensitive to user activity. A user purchasing d distinct products contributes d(d-1)/2 unordered product pairs. A small active group can therefore account for much of the projected network. This motivates downweighting active users, but activity alone does not determine information quality. A frequent buyer with a category preference can create useful within-category connections. A frequent buyer with no preference instead contributes category-independent connections in expectation.
+The construction is sensitive to user activity. A user who buys d distinct products contributes d(d-1)/2 product pairs, so a small group of active users can supply most of the network. This suggests downweighting active users, but activity does not measure information. An active buyer who prefers one category adds many within-category links, which help recovery. An active buyer with no preference adds links that, on average, ignore categories.
 
-We ask how activity heterogeneity and preference breadth interact with projection weights, when inverse-activity weighting improves on Count and Jaccard, and how these projections compare with a normalized SVD of the bipartite matrix. Our contribution is a controlled implementation and comparison of existing ideas, with known labels, matched purchase totals, exact moment calculations, and paired Monte Carlo uncertainty.
+We ask how activity heterogeneity and preference breadth interact with the choice of projection weights, when inverse-activity weighting improves on Count and Jaccard, and how these projections compare with a normalized SVD of the bipartite matrix. We answer these questions with a controlled simulation that has known labels, matched purchase totals, exact expected edge weights, and paired comparisons. After the main results, we added two post hoc analyses, which Section 7 reports separately.
 
-Newman (2001) motivates inverse group-size contributions in projected collaboration networks. Zhou et al. (2007) study resource allocation on bipartite networks, providing related projection context; our symmetric weighting is not their complete recommendation procedure. Dhillon (2001) motivates normalized bipartite spectral representations. Rohe et al. (2016) provide related spectral co-clustering ideas, while von Luxburg (2007) reviews spectral clustering. Our direct SVD baseline is inspired by this literature rather than an exact implementation of either original co-clustering algorithm.
+Newman (2001) weights each collaboration by the inverse of the number of other participants, which motivates our 1/(d-1) weight. Zhou et al. (2007) use resource allocation on bipartite networks; our symmetric weight is related but is not their recommendation method. Dhillon (2001) and Rohe et al. (2016) develop spectral co-clustering for bipartite and directed networks, which motivates our SVD baseline, although it is not an exact implementation of either. Von Luxburg (2007) reviews spectral clustering.
 
 <!-- page -->
 
 ### 2 Simulation design
 
-Let B be the binary purchase matrix for n=1,000 users and p=300 products in K=3 equal categories. Product labels are fixed. Users independently receive a uniformly drawn preferred category, independently of activity, giving approximately balanced preference groups.
+The purchase matrix B has n=1,000 users and p=300 products in K=3 categories of equal size. Each user's preferred category is drawn uniformly and independently of activity, so preference groups are roughly balanced.
 
-Each user samples d_u distinct products sequentially without replacement. Available preferred-category products have weight r_u; others have weight 1. The main ratio is r=2. This is a sampling weight ratio, not a fixed ratio of realized category counts. Products within a category have equal weights.
+Each user buys d_u distinct products, drawn one at a time without replacement. A remaining product in the user's preferred category has weight r_u, and every other product has weight 1. The main experiment uses r=2, which is a sampling weight ratio rather than a fixed share of purchases. Products within a category have equal weights.
 
-Table 1 specifies activity distributions with exactly matched purchase totals within each density setting. Heterogeneity changes how purchases are concentrated among users.
+Table 1 lists the activity distributions. Within each density setting, total purchases are exactly equal; heterogeneity only changes how purchases are spread across users.
 
 |Mean purchases|Low heterogeneity|Medium heterogeneity|High heterogeneity|
 |---|---|---|---|
 |6|All users buy 6|80% buy 3; 20% buy 18|80% buy 1; 20% buy 26|
 |12|All users buy 12|80% buy 6; 20% buy 36|80% buy 2; 20% buy 52|
 
-Table 1. Exact purchase-count distributions. Counts are randomly assigned to users independently of preferred category.
+Table 1. Exact purchase-count distributions. Counts are assigned to users at random, independently of preferred category.
 
-In the focused condition, r_u=2 for every user. In the broad-active condition, the most active 20% have r_u=1; others retain r_u=2. Independent random numbers break activity ties. With equal activity, a random 20% subset becomes broad.
+In the focused condition, every user has r_u=2. In the broad-active condition, the 20% most active users have r_u=1 and the rest keep r_u=2; ties are broken at random. Under low heterogeneity all users are equally active, so a random 20% become broad.
 
-The 12 conditions cross activity, preference setting, and density. Each has 100 independent datasets, with all methods evaluated on the same matrix. No real purchase records are used.
+Crossing activity, preference setting, and density gives 12 conditions. Each has 100 independent datasets, and all four methods run on the same matrix. No real purchase data are used.
 
-A separate pilot used 10 datasets per condition. Four conditions met the proposed difficulty criterion: median error between 0.05 and 0.40 for at least one method. Coverage and runtime checks passed, so we retained the initial design without selecting for method gaps. Main simulations use fresh seeds. Further calibration and unequal-popularity sensitivity analyses were not run.
+A pilot with 10 datasets per condition met the proposed difficulty criterion: four conditions had a median error between 5% and 40% for at least one method. Coverage and runtime checks also passed, so we kept the initial design without considering method gaps. The main runs use fresh seeds.
 
 ![Illustrative bipartite network and weighted projection](../outputs/main/figures/network_example.png)
 
@@ -58,43 +58,43 @@ $$ W_J(i,j) = S_ij / (b_i + b_j - S_ij) $$
 
 $$ W_weighted(i,j) = sum over u with d_u >= 2 of B_ui B_uj / (d_u - 1) $$
 
-Jaccard is zero for a zero denominator. All projection diagonals are set to zero, and weighted edges are not thresholded. For each projection W, let D contain its row sums. We take the K largest algebraic eigenvectors of D^(-1/2) W D^(-1/2), normalize nonzero embedding rows, and apply k-means with 20 initializations and a recorded seed. Zero-strength products and zero embedding rows remain unassigned.
+Jaccard is zero when its denominator is zero. All diagonals are set to zero, and no edges are thresholded. For each projection W with row sums D, we take the K eigenvectors of D^(-1/2) W D^(-1/2) with the largest eigenvalues, normalize the nonzero rows, and run k-means with 20 starts and a recorded seed. Products with zero strength or a zero embedding row stay unassigned.
 
-The direct baseline uses M=Du^(-1/2) B Dp^(-1/2), where Du and Dp contain user and product degrees. After removing zero-degree rows and columns, we retain the leading K right singular vectors, normalize their nonzero rows, and apply the same k-means settings. K is fixed at its true value for all methods. This baseline retains the implicit diagonal effect of M-transpose M, unlike the three projections.
+The SVD baseline uses M=Du^(-1/2) B Dp^(-1/2), where Du and Dp hold user and product degrees. After removing zero-degree rows and columns, we keep the leading K right singular vectors, normalize their nonzero rows, and run the same k-means. Unlike the three projections, this baseline keeps the diagonal of M-transpose M. All methods use the true K.
 
-Let s=p/K and C_uk denote purchases by user u from category k. Exchangeability within categories gives the conditional probability of purchasing a specified pair:
+Let s=p/K, and let C_uk be the number of products user u buys from category k. Because products within a category are exchangeable, the probability that user u buys a given pair is
 
 $$ q_same = E[C_uk(C_uk - 1)] / [s(s - 1)] $$
 
 $$ q_different = E[C_uk C_ul] / s squared, for k different from l $$
 
-Count expectations sum these probabilities over users; Weighted expectations divide each user's contribution by d_u-1 when d_u>=2. We calculate category-count moments by dynamic programming under the actual sequential sampling scheme. Reported block expectations also average over the independently uniform preferred categories. Appendix A gives the recurrence.
+Expected Count weights sum these probabilities over users; expected Weighted weights divide each user's term by d_u-1 when d_u>=2. We compute the category-count moments exactly by dynamic programming under the actual sampling scheme and average over the uniform preferred category (Appendix A).
 
-For r_u=1, the selected products form a uniform subset, so every distinct pair has inclusion probability d_u(d_u-1)/[p(p-1)]. Such a user adds no expected within-minus-between contrast. Exactly, a user contributes total unordered weight d_u(d_u-1)/2 under Count and d_u/2 under Weighted when d_u>=2; both contributions are zero for d_u<2. These identities establish quadratic versus linear total influence, not a clustering guarantee after normalization.
+A user with r_u=1 buys a uniform random subset, so every pair has inclusion probability d_u(d_u-1)/[p(p-1)] and the user adds no expected within-minus-between contrast. In total, a user with d_u>=2 contributes pair weight d_u(d_u-1)/2 under Count and d_u/2 under Weighted; users with d_u<2 contribute nothing. Count influence therefore grows quadratically with activity and Weighted influence linearly. This describes total influence; it is not a clustering guarantee.
 
-For Jaccard, we use the ratio of expected shared counts to expected union counts as an approximation. We check it against simulated means and do not identify it with the exact expected ratio. Raw contrasts have different units across projections, so their magnitudes alone cannot rank recovery quality.
+For Jaccard, we approximate the expected weight by the ratio of expected shared counts to expected union counts and check the approximation against simulation. The three projections use different units, so their raw contrasts cannot be compared directly.
 
 <!-- page -->
 
 ### 4 Community recovery
 
-The primary metric is misclustering rate after optimal permutation of cluster labels. We count unassigned products as errors and divide by all 300 products. Secondary metrics include ARI among assigned products, assignment coverage, edge contrasts, product-strength variation, and runtime. Each plotted confidence interval is a 95% Student-t Monte Carlo interval for a mean over 100 independent datasets. These are not prediction intervals for individual datasets.
+The primary metric is the misclustering rate after the best matching of cluster labels to categories. Unassigned products count as errors, and the denominator is all 300 products. Secondary metrics are ARI among assigned products, coverage, edge contrasts, product-strength variation, and runtime. Error bars are 95% Monte Carlo intervals for the mean over 100 datasets.
 
 ![Community recovery over the complete experiment grid](../outputs/main/figures/recovery_r2.png)
 
 Figure 2. Mean misclustering rate across activity heterogeneity, with 95% Monte Carlo confidence intervals. Columns distinguish preference settings; rows distinguish mean purchase counts. Every point summarizes 100 datasets. Lower values indicate better recovery.
 
-Focused active users substantially improve Count and Jaccard recovery. At mean purchase count 12, Count error decreases from 35.51% under low heterogeneity to 22.36% under medium and 13.04% under high heterogeneity. Jaccard follows closely at 36.33%, 22.65%, and 13.15%. Weighting instead gives 35.31%, 39.05%, and 48.60%; SVD gives 35.46%, 37.01%, and 47.75%.
+Focused active users improve Count and Jaccard recovery. At mean 12, Count error falls from 35.51% under low heterogeneity to 22.36% under medium and 13.04% under high heterogeneity; Jaccard gives 36.33%, 22.65%, and 13.15%. Weighted moves the other way, at 35.31%, 39.05%, and 48.60%, and SVD is similar at 35.46%, 37.01%, and 47.75%.
 
-The sparse focused setting shows a different weighting trajectory: at mean 6, Count improves from 59.77% to 53.17% to 41.28%, whereas Weighted gives 59.76%, 58.81%, and 41.23%. Thus, even within focused preferences, the effect of heterogeneity is not uniformly worsening for Weighted.
+At mean 6 the pattern is weaker. Count improves from 59.77% to 53.17% to 41.28%, and Weighted gives 59.76%, 58.81%, and 41.23%. At high heterogeneity the two coincide, because every user who buys more than one product buys exactly 26.
 
-Broad-active conditions have substantially poorer recovery. At mean 12, Count errors are 48.53%, 62.60%, and 62.94% across heterogeneity levels. At mean 6, they are 60.54%, 62.83%, and 62.87%. Medium and high heterogeneity both yield weak recovery; the exact ordering is not identical for every method. For comparison, the label-permutation references estimated in Section 7 are 62.86% to 63.45%. At medium and high heterogeneity, every broad-active main cell is within about three points of that range for every method, so these cells show little recovery beyond what random labels achieve. All methods assign every product, and no main-experiment product is isolated. Poor recovery therefore reflects incorrect assignments rather than missing coverage.
+Broad-active conditions recover poorly. At mean 12, Count errors are 48.53%, 62.60%, and 62.94% across heterogeneity levels; at mean 6 they are 60.54%, 62.83%, and 62.87%. For comparison, randomly permuted labels give 62.86% to 63.45% (Section 7). Under medium and high heterogeneity, every broad-active cell is within about three points of that range for every method, so these cells show little recovery. All methods assign every product, so the errors come from wrong assignments rather than missing coverage.
 
 <!-- page -->
 
 ### 5 Paired effects of activity weighting
 
-Paired differences isolate the method comparison within each generated dataset. Define the difference as Count error minus Weighted error. Positive values favor Weighted; negative values favor Count. Table 2 reports differences in percentage points for mean purchase count 12.
+Paired differences compare methods on the same dataset. We report Count error minus Weighted error, so positive values favor Weighted. Table 2 gives the differences at mean 12 in percentage points.
 
 |Preferences|Activity|Count minus Weighted|95% Monte Carlo interval|
 |---|---|---|---|
@@ -105,69 +105,65 @@ Paired differences isolate the method comparison within each generated dataset. 
 |Broad active|Medium|2.36|1.77 to 2.96|
 |Broad active|High|-0.04|-0.49 to 0.42|
 
-Table 2. Paired mean error differences over 100 datasets per condition. Intervals are unadjusted for multiple comparisons; statistical detectability does not imply a large practical effect.
+Table 2. Paired mean error differences over 100 datasets per condition, with unadjusted 95% Monte Carlo intervals.
 
 ![Paired Count and Weighted comparisons](../report-assets/paired_weighting.png)
 
 Figure 3. Paired Count-minus-Weighted differences for both purchase densities. Zero marks equal mean error. Negative values favor Count.
 
-Weighting helps most clearly at medium heterogeneity with broad active users: the gain is 2.36 percentage points at mean 12 and 0.70 points at mean 6, with intervals excluding zero. These improvements leave errors within about three points of the label-permutation reference, so they do not indicate successful category recovery. At high heterogeneity, the differences are small and intervals include zero. At low heterogeneity, Count and Weighted matrices differ only by a common scalar and have the same normalized spectral matrix in exact arithmetic. Small measured discrepancies can arise from numerical and k-means initialization differences; they are not evidence for a structural weighting advantage.
+Weighting has a clear cost when active users are focused: 16.69 points at medium and 35.57 points at high heterogeneity. Its clearest gains are in broad-active conditions at medium heterogeneity, 2.36 points at mean 12 and 0.70 points at mean 6, and both leave errors within about three points of the permutation reference. At high heterogeneity the differences are near zero. At low heterogeneity, Count and Weighted differ by a constant factor and give the same normalized matrix, so their small differences reflect numerical and k-means variation.
 
-The interpretation is that activity weighting trades off suppression of category-independent pair contributions against retention of useful repeated evidence. This tradeoff is unfavorable when high-degree users remain focused. The observed gains in broad-active conditions are limited by the information supplied by the remaining users.
+Weighting therefore balances two effects. It suppresses pairs that carry no category information, and it discards repeated evidence from focused buyers. In the main design the second effect dominates. In broad-active conditions, the possible gain is limited by how little information the remaining users provide.
 
 <!-- page -->
 
 ### 6 Diagnostics and comparison with direct SVD
 
-At mean 6 with high heterogeneity, the 800 preference-bearing users each purchase one product in the broad-active condition. They create no product pairs. The 200 users purchasing 26 products have r_u=1, giving zero expected category contrast. Count and Weighted therefore have exactly zero population block contrast. This is an information limitation for the pair projections, and explains why reducing active-user weights cannot create the missing contrast.
+At mean 6 with high heterogeneity and broad active users, the 800 preference-bearing users each buy one product and create no pairs. The 200 users who buy 26 products have r_u=1 and add no expected contrast. Count and Weighted therefore have zero expected block contrast, and no reweighting can create it.
 
-At mean 12 with high heterogeneity, focused users each purchase two products while broad users each purchase 52. Useful pair information remains, but it is sparse. A broad user's total Count contribution is 1,326 unordered pair units, compared with one unit for a focused user. Weighted contributions become 26 and one. The corresponding broad-user shares are about 99.70% and 86.67%. Weighting reduces their dominance, but they still supply most projected pair mass.
+At mean 12 with high heterogeneity, focused users buy two products each and broad users buy 52, so some pair information remains but it is sparse. A broad user contributes 1,326 pairs under Count and 26 under Weighted, against one for a focused user, so broad users supply about 99.70% and 86.67% of pair weight. Weighting reduces their dominance but does not remove it.
 
 ![Theoretical and simulated block contrasts](../report-assets/contrast_validation.png)
 
 Figure 4. Simulated mean within-minus-between edge weights versus theoretical values, with dataset-level Monte Carlo intervals. Each panel uses its own units. The dashed line indicates agreement. Jaccard uses an approximate expected contrast.
 
-Count and Weighted simulated contrasts track the theoretical calculations. For example, at mean 12 with focused high heterogeneity, Count's theoretical contrast is 0.9020 and its simulated mean is 0.9075; Weighted's corresponding values are 0.02098 and 0.02116. Across conditions, the relative discrepancy between simulated mean Jaccard within or between weights and the ratio approximation is below 0.23%. Agreement here supports the approximation in this design, without making it an exact identity.
+Simulated contrasts match the exact calculations. At mean 12 with focused high heterogeneity, Count's theoretical contrast is 0.9020 and its simulated mean is 0.9075; for Weighted the values are 0.02098 and 0.02116. The Jaccard ratio approximation is within 0.23% of the simulated within- and between-category means in every condition.
 
-Count and Jaccard have mean edge-rank correlation 0.9746 across datasets. Their largest condition-level mean error gap is 1.03 percentage points. Nevertheless, their mean clustering agreement ARI is 0.7012, so similar average recovery does not imply identical partitions. Equal expected product popularity helps explain the similar edge rankings; unequal popularity remains untested.
+Count and Jaccard are nearly interchangeable here: their mean edge-rank correlation is 0.9746, and their condition-level mean errors differ by at most 1.03 points. Their partitions still differ, with mean agreement ARI 0.7012. Equal product popularity explains the similarity; we did not test unequal popularity.
 
-No general SVD advantage is observed. In the focused high-heterogeneity setting at mean 12, SVD error exceeds Count by 34.71 percentage points (paired 95% interval 33.22 to 36.20).
-
-The identity M-transpose M=Dp^(-1/2) B-transpose Du^(-1) B Dp^(-1/2) shows that normalized SVD weights each user by 1/d_u, an inverse-activity weight close to Weighted's 1/(d_u-1). This helps explain why SVD tracks Weighted in many conditions, including the separation experiment. The two differ mainly for single-purchase users, who carry no pair information but still enter Du, Dp, and the diagonal. At mean 6 with focused high heterogeneity, these 800 users are a plausible reason SVD error is 59.70% while Count and Weighted are near 41%; we did not run an ablation to confirm this.
+SVD offers no general advantage. In the focused high-heterogeneity setting at mean 12, its error exceeds Count's by 34.71 points (paired 95% interval 33.22 to 36.20). The identity M-transpose M=Dp^(-1/2) B-transpose Du^(-1) B Dp^(-1/2) shows why it often tracks Weighted: it weights each user by 1/d_u, close to Weighted's 1/(d_u-1). The two differ mainly for single-purchase users, who carry no pair information but still enter Du, Dp, and the diagonal. These 800 users are a plausible reason SVD reaches 59.70% error at mean 6 with focused high heterogeneity while Count and Weighted are near 41%; we did not run an ablation to confirm this.
 
 <!-- page -->
 
 ### 7 Exploratory supplementary analyses
 
-After inspecting the main results and external exploratory descriptions, we specified two supplementary analyses and recorded their design before fresh verification runs. These are post hoc analyses, not prespecified main experiments. The original proposal, frozen r=2 settings, and main result files are unchanged. Both additions use the original numerical dependency environment and 100 replicates per condition.
+After reviewing the main results and external exploratory suggestions, we designed two supplementary analyses and recorded the design before running them. They are post hoc and are reported separately from the main experiment, whose proposal, settings, and results are unchanged. Both use the original software environment and 100 replicates per condition.
 
-The r=3 sensitivity analysis repeats the complete 12-cell grid with root seed 23604. At mean 12, medium heterogeneity, and broad active users, mean errors are 62.46% for Count, 62.33% for Jaccard, 34.77% for Weighted, and 38.00% for SVD. The paired Count-minus-Weighted advantage is 27.69 percentage points (95% interval 26.13 to 29.25). Stronger preferences make some focused cells easy: at mean 12 and high heterogeneity, Count and Weighted errors are 0.85% and 4.00%. Appendix C reports every r=3 condition.
+**Stronger preferences.** We repeat the full 12-cell grid with r=3 (root seed 23604). At mean 12 with medium heterogeneity and broad active users, the methods now separate: Count and Jaccard errors are 62.46% and 62.33%, while Weighted gives 34.77% and SVD 38.00%. The paired Count-minus-Weighted difference is 27.69 points (95% interval 26.13 to 29.25). Focused cells at mean 12 become easy; at high heterogeneity, Count and Weighted errors are 0.85% and 4.00%. Appendix C lists every condition.
 
-The separation experiment fixes 1,000 informative users at either (m=12, r=2) or (m=6, r=3). It adds A=50 or 200 preference-free users with D/m=1, 2, 4, or 8, plus one A=0 baseline per setting. This gives 18 cells and 1,800 datasets using root seed 23605. Informative matrices are identical across exposure levels within each replicate; background users and purchases are nested. Total purchases and user counts increase, so this answers a different question from the matched-total main design.
+**Fixed information, added background.** The main design keeps total purchases fixed, so making active users broad also takes purchases from informative users. The separation experiment removes this confound. It fixes 1,000 informative users in one of two settings, (m=12, r=2) or (m=6, r=3), and adds A=50 or 200 preference-free users who each buy D products, with D/m=1, 2, 4, or 8. With one A=0 baseline per setting, this gives 18 cells and 1,800 datasets (root seed 23605). Within a replicate, the informative matrix is identical across cells and the background is nested. Because background users add purchases, this experiment answers a different question from the matched-total main design.
 
 ![Paired weighting effects under fixed informative purchases](../outputs/supplement/figures/separation_differences.png)
 
-Figure 5. Exploratory paired Weighted-minus-Count error differences in percentage points. Negative values favor weighting. These heatmaps summarize specific simulated settings, not a theoretical phase boundary. Recovery curves and complete means are in Appendices D and E.
+Figure 5. Paired Weighted-minus-Count error differences in percentage points under fixed informative purchases. Negative values favor weighting. Recovery curves and all means are in Appendices D and E.
 
-With m=12, r=2, A=50, and D=48, Count error is 59.05% versus 36.02% for Weighted. The paired advantage is 23.03 points (95% interval 21.39 to 24.66); the no-background error is 35.53% for both. With m=6, r=3, A=50, and D=24, Count and Weighted errors are 56.83% and 21.63%, versus a 20.55% baseline. The paired advantage is 35.20 points (33.93 to 36.48).
+Weighting protects recovery from active background buyers. With m=12, r=2, A=50, and D=48, Count error rises from the 35.53% baseline to 59.05%, while Weighted stays at 36.02%; the paired difference is 23.03 points (21.39 to 24.66). With m=6, r=3, A=50, and D=24, Count reaches 56.83% and Weighted 21.63%, against a 20.55% baseline; the difference is 35.20 points (33.93 to 36.48). When D=m, background users are exactly as active as informative users, so weighting cannot single them out, and Count and Weighted give identical errors.
 
-All supplementary methods share a recorded k-means seed within each dataset. Count and Weighted give identical errors when D=m, as required by their equivalent normalized matrices. Twenty truth-label permutations per dataset provide a method-specific reference using optimal matching. Cell mean permutation errors range from 62.86% to 63.45% across these supplementary analyses; this is an estimated reference, not a universal 63% line. Within-cell intervals use independent replicates and are unadjusted for multiplicity. Cells within a separation replicate share data and are correlated.
+As a reference for no recovery, we permute the true labels 20 times per dataset and recompute the matched error; cell means range from 62.86% to 63.45%. All methods within a dataset share one k-means seed. Intervals are over independent replicates and are not adjusted for multiplicity; cells within a separation replicate share data and are correlated.
 
 <!-- page -->
 
 ### 8 Discussion and reproducibility
 
-Activity heterogeneity changes the leverage of whichever behavior is concentrated in active users. In the frozen r=2 experiment, focused active users improve Count and Jaccard recovery, whereas weighting can discard their evidence. Broad-active high heterogeneity also reduces purchases by informative users, so its poor recovery cannot by itself establish that weighting fails to suppress background interference.
+Activity heterogeneity amplifies whatever behavior active users have. When they are focused, concentrated activity strengthens Count and Jaccard, and weighting discards that evidence. When they are broad, the main design also takes purchases from informative users, so its poor recovery cannot show whether weighting suppresses background noise.
 
-The post hoc analyses clarify this distinction. At r=3, medium-heterogeneity broad-active conditions reveal a substantial weighting benefit. In the separation experiment, the informative matrix stays fixed while extra preference-free purchases are added; weighting and normalized SVD retain much more recovery accuracy than Count or Jaccard in the tested high-activity background settings. The r=2 main study and supplementary analyses address complementary aspects of the original questions. None establishes that D>m alone guarantees a benefit, or identifies a universal crossover in preference strength.
+The post hoc analyses answer that question. With r=3, weighting lowers error by about 28 points in the medium-heterogeneity broad-active condition. With informative purchases held fixed, Weighted and SVD stay much closer to their no-background baselines while Count and Jaccard approach the permutation reference. Weighting helps only when activity separates uninformative users from informative ones: background buyers who are no more active than everyone else receive the same weight. Together, the main and supplementary results answer our second question: weighting helps when high activity marks uninformative users and hurts when it marks informative ones. For the third question, normalized SVD behaves much like Weighted and offers no general advantage.
 
-Our conclusions apply to a model with balanced categories, equal within-category product weights, single-category preferences, and known K. We have no real purchase-data validation. Edges in a projection are dependent, so we do not import an independent-edge SBM detection threshold. Zero expected contrast is exact in the sparse high-heterogeneity broad-active cell with one purchase per informative user; it does not imply absence of information in every high-heterogeneity cell. At mean 12, informative users each buy two products and still provide some pair information.
+The model has balanced categories, equal product weights within categories, single-category preferences, and known K, and we have no real purchase data. Projected edges are dependent, so we do not apply an independent-edge detection threshold. The supplementary settings were chosen after seeing the main results; their fresh simulations quantify those settings but do not remove the selection. The two separation scenarios change both m and r, so they cannot isolate either parameter. Further work could study mixed preferences, unequal product popularity, more preference strengths, and ablations of the SVD normalization and diagonal.
 
-The supplementary settings were motivated by observed results and external exploratory descriptions. Their fresh simulations quantify those selected settings; they do not remove the exploratory selection. The two separation scenarios vary both m and r, so comparisons across scenarios cannot isolate either parameter. We report the full chosen grids, unadjusted paired intervals, and label-permutation references. Further work could study mixed preferences, unequal product popularity, additional preference strengths, and controlled diagonal or normalization ablations.
+All parameters, dataset and k-means seeds, software versions, and checkpoints are recorded. Root seeds are 23601 for the pilot, 23603 for the main experiment, 23604 and 23605 for the supplementary analyses, and 23606 for permutations. Main datasets keep their original method seeds; supplementary methods share one seed per dataset so that equivalent matrices give identical results. Hash checks confirm that the proposal and main results are unchanged, and five core tests, three supplementary tests, and audits of saved results, pairing, and intervals pass. Main-experiment runtimes per dataset are about 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD, excluding data generation and diagnostics.
 
-Reproduction materials record parameters, dataset and k-means seeds, software versions, and atomic checkpoints. The original pilot and main root seeds remain 23601 and 23603. Supplementary generation roots are 23604 and 23605, with permutation namespace 23606. Main datasets use their original independent method seeds; supplementary methods share initialization seeds to check matrix equivalence. Hash checks verify the original proposal and main results are unchanged. Five core tests and three supplementary tests pass, together with saved-result, pairing, and interval audits.
-
-Main-experiment mean method runtimes are approximately 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD. These include construction or decomposition and clustering, excluding generation, theory, and diagnostics, with four processes and one numerical-library thread per worker. Timings depend on machine load. Raw purchase matrices can be regenerated from seeds; an example is supplied. The principal conclusion is conditional: downweighting helps when it suppresses the tested preference-free active buyers without discarding the informative purchases, and can hurt when active buyers carry the strongest category evidence.
+Activity should be read together with preference. Downweighting active buyers removes their noise when they buy at random, discards the strongest evidence when they are focused, and cannot recover information that the remaining users do not supply.
 
 <!-- page -->
 
@@ -270,7 +266,7 @@ Each scenario retains the same informative matrix within a replicate. Background
 
 Figure 7. Fixed-information separation experiment with 100 replicates per condition and 95% Monte Carlo intervals. The informative-only baseline is reused across panels for the same scenario; those displays are not additional independent baseline datasets.
 
-As D grows, Count and Jaccard become less accurate in the tested settings, while Weighted and SVD remain much closer to their informative-only baselines. Increasing A also degrades Weighted, so weighting does not make recovery immune to background users. The nonmonotone changes in Weighted error across D should not be interpreted as universal improvement from adding more background purchases.
+As D grows, Count and Jaccard lose accuracy, while Weighted and SVD stay much closer to their informative-only baselines. More background users (larger A) also raise Weighted error, so weighting does not make recovery immune to background. Weighted error does not change monotonically with D, and this should not be read as a benefit of adding background purchases.
 
 Permutation references randomize the balanced truth labels while preserving fitted cluster sizes. Twenty permutations are averaged within each dataset, then summarized across independent replicates. Their uncertainty includes finite permutation simulation. The full method-specific references are in outputs/supplement/separation/permutation_reference.csv and the sensitivity summary table. They are not a theoretical impossibility boundary.
 
