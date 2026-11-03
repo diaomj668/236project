@@ -56,6 +56,7 @@ def add_table(lines):
          [.9,1.85,2.05,2.1] if len(rows[0])==4 and rows[0][0]=='Mean purchases' else
          [1.2,.8,2,2.9])
  if rows[0][0]=='Setting':widths=[1.,.5,.5,1.2,1.2,1.2,1.2]
+ if rows[0][0]=='Cell':widths=[1.55,.85,.7,.8,.7,1.1,1.25]
  for j,col in enumerate(table.columns):col.width=Inches(widths[j])
  for i,row in enumerate(rows):
   cells=table.add_row().cells

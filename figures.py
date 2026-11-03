@@ -8,10 +8,42 @@ import numpy as np
 from model import METHODS
 
 
+def random_label_reference():
+    """Range of mean label-permutation errors from the supplementary runs, or None.
+
+    Same n, p, K and balanced truth as the main study; used only as a visual
+    reference for 'no recovery', not as a theoretical boundary.
+    """
+    from pathlib import Path
+    import pandas as pd
+    root = Path(__file__).resolve().parent/'outputs/supplement'
+    paths = [root/'sensitivity_r3/summary.csv', root/'separation/summary.csv']
+    if not all(p.exists() for p in paths):
+        return None
+    s = pd.concat([pd.read_csv(p) for p in paths])
+    v = s[s.metric == 'permutation_error']['mean']
+    return (float(v.min()), float(v.max())) if len(v) else None
+
+
+def add_reference(ax, reference, scale=1.0, label=True):
+    if reference is None:
+        return
+    lo, hi = reference[0]*scale, reference[1]*scale
+    ax.axhspan(lo, hi, color='#999999', alpha=.25, lw=0, zorder=0)
+    ax.axhline((lo+hi)/2, color='#666666', ls='--', lw=1, zorder=0,
+               label='Random-label reference' if label else None)
+
+
 def make_figures(df, summary, out):
     folder = out/'figures'
     folder.mkdir(exist_ok=True)
     plt.rcParams.update({'figure.dpi':140,'axes.spines.top':False,'axes.spines.right':False})
+    recovery_figures(df, summary, folder)
+    figure_rest(df, out, folder)
+
+
+def recovery_figures(df, summary, folder):
+    reference = random_label_reference()
     for r in sorted(df.r.unique()):
         fig, axes = plt.subplots(len(df.mean_purchases.unique()),2,figsize=(11,3.5*len(df.mean_purchases.unique())),sharey=True)
         for ax,(mean,pref) in zip(axes.flat,[(m,p) for m in sorted(df['mean_purchases'].unique()) for p in ['focused','broad_active']]):
@@ -24,10 +56,17 @@ def make_figures(df, summary, out):
                 ax.errorbar(range(3),y,yerr=error if np.isfinite(error).all() else None,marker='o',capsize=3,label=method)
             ax.set(title=f'Mean purchases={mean}; {pref}',xticks=range(3),xticklabels=['low','medium','high'],ylabel='Misclustering rate',xlabel='Activity heterogeneity')
             ax.set_ylim(0,1)
+            add_reference(ax, reference)
         axes.flat[0].legend(fontsize=8)
-        fig.suptitle(f'Recovery (r={r:g}); bars: 95% Monte Carlo CI for mean')
+        title=f'Recovery (r={r:g}); bars: 95% Monte Carlo CI for mean'
+        if reference is not None:
+            title+=f'\nGray band: random-label reference ({100*reference[0]:.1f}–{100*reference[1]:.1f}%)'
+        fig.suptitle(title)
         fig.tight_layout()
         fig.savefig(folder/f'recovery_r{r:g}.png'); plt.close(fig)
+
+
+def figure_rest(df, out, folder):
     s=df[df.method!='bipartite_svd']
     fig,ax=plt.subplots(figsize=(6,5))
     for method in METHODS[:3]:

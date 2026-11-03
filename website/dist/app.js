@@ -12,6 +12,7 @@ function update(){
  const g=node('g');svg.append(g);
  const xp=i=>85+i*290, yp=v=>350-v/0.7*300;
  for(let n=0;n<=7;n++){const value=n/10,y=yp(value);g.append(node('line',{x1:65,x2:700,y1:y,y2:y,stroke:'#d8ddd8','stroke-width':1}),node('text',{x:52,y:y+4,'text-anchor':'end',fill:'#59656b','font-size':12},`${n*10}%`));}
+ const ref=0.63;g.append(node('line',{x1:65,x2:700,y1:yp(ref),y2:yp(ref),stroke:'#6b7378','stroke-width':1.4,'stroke-dasharray':'6 5'}),node('text',{x:698,y:yp(ref)-7,'text-anchor':'end',fill:'#59656b','font-size':12},'Random labels ≈ 63%'));
  levels.forEach((h,i)=>g.append(node('text',{x:xp(i),y:378,'text-anchor':'middle',fill:'#59656b','font-size':13},h[0].toUpperCase()+h.slice(1))));
  g.append(node('text',{x:380,y:406,'text-anchor':'middle',fill:'#59656b','font-size':12},'Activity heterogeneity'));
  for(const method of methods){

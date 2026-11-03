@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from model import METHODS
+from figures import random_label_reference, add_reference
 NAMES=dict(zip(METHODS,['Count','Jaccard','Activity weighted','Bipartite SVD']))
 COLORS=dict(zip(METHODS,['#28658e','#c47b24','#328269','#9e5362']))
 
@@ -19,6 +20,7 @@ def curve(ax,frame,x,label,color):
 def make_figures(out):
     out=Path(out);figs=out/'figures';figs.mkdir(exist_ok=True)
     plt.rcParams.update({'figure.dpi':180,'font.size':10,'axes.spines.top':False,'axes.spines.right':False})
+    reference=random_label_reference()
     s=pd.read_csv(out/'sensitivity_r3/summary.csv')
     fig,axes=plt.subplots(2,2,figsize=(10.5,6.6),sharey=True)
     for ax,(mean,pref) in zip(axes.flat,[(m,p) for m in [6,12] for p in ['focused','broad_active']]):
@@ -28,8 +30,9 @@ def make_figures(out):
             curve(ax,f,np.arange(3),NAMES[method],COLORS[method])
         ax.set(title=f'Mean {mean}; {"focused" if pref=="focused" else "broad active"}',
                xticks=np.arange(3),xticklabels=['Low','Medium','High'],ylabel='Misclustering rate (%)',xlabel='Activity heterogeneity',ylim=(-1,70))
+        add_reference(ax,reference,scale=100)
     axes[0,0].legend(fontsize=8)
-    fig.suptitle('Exploratory sensitivity analysis at r=3',fontsize=13)
+    fig.suptitle('Exploratory sensitivity analysis at r=3 (gray band: random-label reference)',fontsize=13)
     fig.tight_layout();fig.savefig(figs/'sensitivity_r3.png');plt.close(fig)
     s=pd.read_csv(out/'separation/summary.csv');s=s[s.metric=='error']
     fig,axes=plt.subplots(2,2,figsize=(10.5,6.8),sharey=True)
@@ -44,8 +47,9 @@ def make_figures(out):
             ax.set(title=f'{setting.replace("_", ", ")}; {a} background users',
                    xticks=np.arange(5),xticklabels=['None','1','2','4','8'],ylabel='Misclustering rate (%)',
                    xlabel='Background / informative purchase count',ylim=(-1,70))
+            add_reference(ax,reference,scale=100)
     axes[0,0].legend(fontsize=8)
-    fig.suptitle('Exploratory separation analysis with fixed informative purchases',fontsize=12)
+    fig.suptitle('Exploratory separation analysis with fixed informative purchases (gray band: random-label reference)',fontsize=12)
     fig.tight_layout();fig.savefig(figs/'separation_recovery.png');plt.close(fig)
     p=pd.read_csv(out/'separation/paired_differences.csv')
     p=p[(p.method_a=='count')&(p.method_b=='weighted')&(p.noise_users>0)].copy()

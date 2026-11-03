@@ -54,3 +54,12 @@ for r in records:
     row=frame[(frame.metric=='error')&(frame.mean_purchases==r['mean_purchases'])&(frame.heterogeneity==r['heterogeneity'])&(frame.preference==r['preference'])&(frame.method==r['method'])].iloc[0]
     np.testing.assert_allclose([r['mean'],r['ci_low'],r['ci_high']],[row['mean'],row.ci_low,row.ci_high],atol=1e-14)
 print('All 96 interactive website records match saved main or supplementary summaries.')
+
+# Post hoc SVD ablation: original SVD errors must equal the saved records.
+abl=pd.read_csv(OUT/'svd_ablation/results.csv')
+assert len(abl)==3*replicates and abl.svd_drop_single_coverage.eq(1).all()
+for source,frame in [('main',pd.read_csv(ROOT/'outputs/main/results.csv')),('sensitivity_r3',pd.read_csv(OUT/'sensitivity_r3/results.csv'))]:
+    saved=frame[frame.method=='bipartite_svd'].set_index(['dataset_seed']).error
+    a=abl[abl.source==source].set_index('dataset_seed')
+    np.testing.assert_allclose(a.svd_error,saved.loc[a.index],atol=1e-14)
+print('SVD ablation reproduces all saved SVD errors before removing single-purchase users.')

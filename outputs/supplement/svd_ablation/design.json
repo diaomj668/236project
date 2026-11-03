@@ -1,0 +1,30 @@
+{
+  "analysis_status": "Post hoc exploratory ablation, added after the supplementary analyses",
+  "design_record_date": "2026-11-03",
+  "cells": [
+    [
+      "main",
+      6,
+      "high",
+      "focused",
+      2.0
+    ],
+    [
+      "main",
+      12,
+      "high",
+      "focused",
+      2.0
+    ],
+    [
+      "sensitivity_r3",
+      6,
+      "high",
+      "focused",
+      3.0
+    ]
+  ],
+  "intervention": "Drop users with exactly one purchase, then run the unchanged bipartite_svd",
+  "reuse": "Recorded datasets regenerated from saved seeds; original SVD k-means seed reused; original SVD errors must reproduce exactly",
+  "uncertainty": "95% Student-t intervals over 100 datasets per cell; no multiplicity adjustment"
+}

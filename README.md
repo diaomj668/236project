@@ -155,4 +155,12 @@ On a machine with different Python/package metadata, use a new output folder to 
 python run_experiments.py --stage supplement --workers 4 --output outputs/supplement_reproduced
 ```
 
+A post hoc SVD ablation reruns the unchanged bipartite SVD on the recorded focused high-heterogeneity datasets after removing users with exactly one purchase. It reproduces the saved SVD errors before applying the change:
+
+```bash
+python scripts/svd_ablation.py --workers 4
+```
+
+Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`. Recovery figures in the report and webpage show the random-label reference as a dashed line.
+
 Supplementary results, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.

@@ -82,7 +82,7 @@ The primary metric is the misclustering rate after the best matching of cluster 
 
 ![Community recovery over the complete experiment grid](../outputs/main/figures/recovery_r2.png)
 
-Figure 2. Mean misclustering rate across activity heterogeneity, with 95% Monte Carlo confidence intervals. Columns distinguish preference settings; rows distinguish mean purchase counts. Every point summarizes 100 datasets. Lower values indicate better recovery.
+Figure 2. Mean misclustering rate across activity heterogeneity, with 95% Monte Carlo confidence intervals. Columns distinguish preference settings; rows distinguish mean purchase counts. Every point summarizes 100 datasets. Lower values indicate better recovery. The dashed line and gray band mark the random-label reference (62.9% to 63.4%) estimated in Section 7.
 
 Focused active users improve Count and Jaccard recovery. At mean 12, Count error falls from 35.51% under low heterogeneity to 22.36% under medium and 13.04% under high heterogeneity; Jaccard gives 36.33%, 22.65%, and 13.15%. Weighted moves the other way, at 35.31%, 39.05%, and 48.60%, and SVD is similar at 35.46%, 37.01%, and 47.75%.
 
@@ -131,13 +131,13 @@ Simulated contrasts match the exact calculations. At mean 12 with focused high h
 
 Count and Jaccard are nearly interchangeable here: their mean edge-rank correlation is 0.9746, and their condition-level mean errors differ by at most 1.03 points. Their partitions still differ, with mean agreement ARI 0.7012. Equal product popularity explains the similarity; we did not test unequal popularity.
 
-SVD offers no general advantage. In the focused high-heterogeneity setting at mean 12, its error exceeds Count's by 34.71 points (paired 95% interval 33.22 to 36.20). The identity M-transpose M=Dp^(-1/2) B-transpose Du^(-1) B Dp^(-1/2) shows why it often tracks Weighted: it weights each user by 1/d_u, close to Weighted's 1/(d_u-1). The two differ mainly for single-purchase users, who carry no pair information but still enter Du, Dp, and the diagonal. These 800 users are a plausible reason SVD reaches 59.70% error at mean 6 with focused high heterogeneity while Count and Weighted are near 41%; we did not run an ablation to confirm this.
+SVD offers no general advantage. In the focused high-heterogeneity setting at mean 12, its error exceeds Count's by 34.71 points (paired 95% interval 33.22 to 36.20). The identity M-transpose M=Dp^(-1/2) B-transpose Du^(-1) B Dp^(-1/2) shows why it often tracks Weighted: it weights each user by 1/d_u, close to Weighted's 1/(d_u-1). The two differ mainly for single-purchase users, who carry no pair information but still enter Du, Dp, and the diagonal. At mean 6 with focused high heterogeneity, 800 such users push SVD to 59.70% error while Count and Weighted are near 41%. A post hoc ablation confirms this (Appendix F): rerunning the unchanged SVD on the same recorded datasets without single-purchase users lowers its error to 41.27%, matching Count, and the r=3 sensitivity cell behaves the same way. At mean 12 no user buys only one product, the ablation changes nothing, and SVD's gap to Count instead reflects its Weighted-like 1/d_u user weighting.
 
 <!-- page -->
 
 ### 7 Exploratory supplementary analyses
 
-After reviewing the main results and external exploratory suggestions, we designed two supplementary analyses and recorded the design before running them. They are post hoc and are reported separately from the main experiment, whose proposal, settings, and results are unchanged. Both use the original software environment and 100 replicates per condition.
+After reviewing the main results and suggestions from an AI-assisted review of them, we designed two supplementary analyses and recorded the design before running them. They are post hoc and are reported separately from the main experiment, whose proposal, settings, and results are unchanged. Both use the original software environment and 100 replicates per condition.
 
 **Stronger preferences.** We repeat the full 12-cell grid with r=3 (root seed 23604). At mean 12 with medium heterogeneity and broad active users, the methods now separate: Count and Jaccard errors are 62.46% and 62.33%, while Weighted gives 34.77% and SVD 38.00%. The paired Count-minus-Weighted difference is 27.69 points (95% interval 26.13 to 29.25). Focused cells at mean 12 become easy; at high heterogeneity, Count and Weighted errors are 0.85% and 4.00%. Appendix C lists every condition.
 
@@ -161,7 +161,7 @@ The post hoc analyses answer that question. With r=3, weighting lowers error by 
 
 The model has balanced categories, equal product weights within categories, single-category preferences, and known K, and we have no real purchase data. Projected edges are dependent, so we do not apply an independent-edge detection threshold. The supplementary settings were chosen after seeing the main results; their fresh simulations quantify those settings but do not remove the selection. The two separation scenarios change both m and r, so they cannot isolate either parameter. Further work could study mixed preferences, unequal product popularity, more preference strengths, and ablations of the SVD normalization and diagonal.
 
-All parameters, dataset and k-means seeds, software versions, and checkpoints are recorded. Root seeds are 23601 for the pilot, 23603 for the main experiment, 23604 and 23605 for the supplementary analyses, and 23606 for permutations. Main datasets keep their original method seeds; supplementary methods share one seed per dataset so that equivalent matrices give identical results. Hash checks confirm that the proposal and main results are unchanged, and five core tests, three supplementary tests, and audits of saved results, pairing, and intervals pass. Main-experiment runtimes per dataset are about 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD, excluding data generation and diagnostics.
+All parameters, dataset and k-means seeds, software versions, and checkpoints are recorded. Root seeds are 23601 for the pilot, 23603 for the main experiment, 23604 and 23605 for the supplementary analyses, and 23606 for permutations. Main datasets keep their original method seeds; supplementary methods share one seed per dataset so that equivalent matrices give identical results. Hash checks confirm that the proposal and main results are unchanged, and five core tests, three supplementary tests, an exact reproduction check in the SVD ablation, and audits of saved results, pairing, and intervals pass. Main-experiment runtimes per dataset are about 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD, excluding data generation and diagnostics.
 
 Activity should be read together with preference. Downweighting active buyers removes their noise when they buy at random, discards the strongest evidence when they are focused, and cannot recover information that the remaining users do not supply.
 
@@ -192,6 +192,7 @@ python scripts/build_report_assets.py
 python run_experiments.py --stage supplement --workers 4 --resume
 python scripts/validate_supplement.py
 python scripts/build_supplement_materials.py
+python scripts/svd_ablation.py --workers 4
 ```
 
 For a fresh independent run with the same design, add a new --seed and --output directory and omit --resume. The delivered outputs/main directory contains results.csv, diagnostics.csv, summary.csv, paired_differences.csv, manifest.json, and dataset checkpoints. The experiment manifest is the authoritative record of the completed main design.
@@ -238,7 +239,7 @@ The full original grid was rerun at r=3 using 100 fresh datasets per cell. Main 
 
 ![Exploratory recovery curves at r equal to 3](../outputs/supplement/figures/sensitivity_r3.png)
 
-Figure 6. Full r=3 sensitivity grid. Bars show 95% Monte Carlo intervals over 100 datasets. This is a post hoc sensitivity analysis; some focused settings are near perfect recovery, and all cells are retained.
+Figure 6. Full r=3 sensitivity grid. Bars show 95% Monte Carlo intervals over 100 datasets. This is a post hoc sensitivity analysis; some focused settings are near perfect recovery, and all cells are retained. The dashed line marks the random-label reference.
 
 |Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
 |---|---|---|---|---|---|---|
@@ -264,7 +265,7 @@ Each scenario retains the same informative matrix within a replicate. Background
 
 ![Recovery after adding preference free background buyers](../outputs/supplement/figures/separation_recovery.png)
 
-Figure 7. Fixed-information separation experiment with 100 replicates per condition and 95% Monte Carlo intervals. The informative-only baseline is reused across panels for the same scenario; those displays are not additional independent baseline datasets.
+Figure 7. Fixed-information separation experiment with 100 replicates per condition and 95% Monte Carlo intervals. The informative-only baseline is reused across panels for the same scenario; those displays are not additional independent baseline datasets. The dashed line marks the random-label reference.
 
 As D grows, Count and Jaccard lose accuracy, while Weighted and SVD stay much closer to their informative-only baselines. More background users (larger A) also raise Weighted error, so weighting does not make recovery immune to background. Weighted error does not change monotonically with D, and this should not be read as a benefit of adding background purchases.
 
@@ -296,3 +297,17 @@ All errors are percentages from 100 replicates. A is the number of extra backgro
 |m6_r3|200|12|49.21|50.21|24.84|26.20|
 |m6_r3|200|24|61.01|60.91|24.48|26.95|
 |m6_r3|200|48|62.32|62.37|23.49|26.40|
+
+<!-- page -->
+
+### Appendix F Post hoc SVD ablation
+
+The ablation regenerates each recorded dataset from its seed, reruns the unchanged bipartite SVD with its recorded k-means seed, and checks that the saved error is reproduced exactly. It then removes users with exactly one purchase and reruns SVD. All products remain assigned.
+
+Table 3. Post hoc SVD ablation on the recorded datasets (100 per cell, mean errors in percent). The last column is SVD error minus SVD error without single-purchase users, with 95% Monte Carlo intervals. Original SVD errors are reproduced exactly.
+
+|Cell|Single-purchase users|Count|Weighted|SVD|SVD without single-purchase users|SVD difference (pp, 95% CI)|
+|---|---|---|---|---|---|---|
+|Mean 6, high, focused, r=2|800|41.28|41.23|59.70|41.27|18.43 (16.98 to 19.88)|
+|Mean 12, high, focused, r=2|0|13.04|48.60|47.75|47.75|0.00 (0.00 to 0.00)|
+|Mean 6, high, focused, r=3|800|7.62|7.62|39.34|7.62|31.72 (29.44 to 34.00)|

@@ -51,3 +51,16 @@ The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) a
 Twenty label permutations per dataset estimate a method-specific matching-adjusted reference. Mean reference errors span 62.86%–63.45% across supplementary cells; this is not a universal 63% chance-error constant. No independent-edge SBM threshold or universal preference crossover is claimed.
 
 The combined conclusion is conditional: weighting can discard useful evidence from focused active buyers, and it can protect recovery against the tested preference-free active buyers when informative purchases are retained. These supplementary settings were chosen after observing results and must remain labeled exploratory.
+
+
+## Post hoc SVD ablation
+
+In focused, high-heterogeneity cells at mean 6, 80% of users buy one product. They create no product pairs, so Count and Weighted ignore them, but they still enter the bipartite SVD through the user and product degrees and the diagonal of M'M. `scripts/svd_ablation.py` regenerates the recorded datasets from their seeds, reproduces the saved SVD errors exactly, and reruns the unchanged SVD without single-purchase users (100 datasets per cell).
+
+|Cell|Single-purchase users|Count|Weighted|SVD|SVD without single-purchase users|SVD difference (pp, 95% CI)|
+|---|---|---|---|---|---|---|
+|Mean 6, high, focused, r=2|800|41.28|41.23|59.70|41.27|18.43 (16.98 to 19.88)|
+|Mean 12, high, focused, r=2|0|13.04|48.60|47.75|47.75|0.00 (0.00 to 0.00)|
+|Mean 6, high, focused, r=3|800|7.62|7.62|39.34|7.62|31.72 (29.44 to 34.00)|
+
+Removing single-purchase users makes SVD match Count in both mean-6 cells. The mean-12 cell has no single-purchase users and is unchanged; there SVD tracks Weighted because both downweight active users. This ablation was added after the supplementary analyses and is exploratory.
