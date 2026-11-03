@@ -30,3 +30,24 @@ These results apply to the specified sampling scheme with balanced product categ
 - Regenerating a dataset from its recorded seed reproduced method metrics and theoretical values.
 - Resuming the pilot did not duplicate completed records.
 - Confidence intervals treat datasets as independent units. Paired differences are calculated by subtracting method errors within the same dataset before aggregation.
+
+## Post hoc exploratory supplementary results
+
+The original r=2 main results above are unchanged. After inspecting them and user-supplied exploratory descriptions, we recorded an additional design before fresh verification runs. The supplementary analyses use the original dependency environment, separate root seeds, and 100 replicates per cell. They comprise 1,200 r=3 sensitivity datasets and 1,800 fixed-information separation datasets.
+
+At r=3, mean 12, medium heterogeneity, and broad active users, Count error is 62.46%, Jaccard 62.33%, Weighted 34.77%, and SVD 38.00%. The paired Count-minus-Weighted difference is 27.69 percentage points (95% Monte Carlo interval 26.13 to 29.25). Some focused r=3 cells become easy; the full grid is retained.
+
+The separation experiment fixes 1,000 informative users, then adds uniform background users. The following rows are illustrative; all 18 conditions are reported in `outputs/supplement/separation/` and the report appendix.
+
+|Informative setting|Extra users|Purchases per extra user|Count error|Weighted error|SVD error|
+|---|---|---|---|---|---|
+|m=12, r=2|0|—|35.53%|35.53%|35.53%|
+|m=12, r=2|50|48|59.05%|36.02%|36.33%|
+|m=6, r=3|0|—|20.55%|20.55%|20.55%|
+|m=6, r=3|50|24|56.83%|21.63%|22.32%|
+
+The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) and 35.20 points (33.93 to 36.48). Informative matrices are identical across exposure levels within each replicate, while background users and purchases are nested. Total users and purchases increase, unlike the matched-total main design. Count and Weighted are exactly equivalent when all contributing users have the same purchase count; shared supplementary k-means seeds verify this control.
+
+Twenty label permutations per dataset estimate a method-specific matching-adjusted reference. Mean reference errors span 62.86%–63.45% across supplementary cells; this is not a universal 63% chance-error constant. No independent-edge SBM threshold or universal preference crossover is claimed.
+
+The combined conclusion is conditional: weighting can discard useful evidence from focused active buyers, and it can protect recovery against the tested preference-free active buyers when informative purchases are retained. These supplementary settings were chosen after observing results and must remain labeled exploratory.

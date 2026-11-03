@@ -55,6 +55,7 @@ def add_table(lines):
  widths=([.65,.9,1.4,1,1,1, .95] if len(rows[0])==7 else
          [.9,1.85,2.05,2.1] if len(rows[0])==4 and rows[0][0]=='Mean purchases' else
          [1.2,.8,2,2.9])
+ if rows[0][0]=='Setting':widths=[1.,.5,.5,1.2,1.2,1.2,1.2]
  for j,col in enumerate(table.columns):col.width=Inches(widths[j])
  for i,row in enumerate(rows):
   cells=table.add_row().cells
@@ -71,7 +72,7 @@ def add_table(lines):
   pr=table.rows[-1]._tr.get_or_add_trPr();n=OxmlElement('w:cantSplit');pr.append(n)
   if i==0:
    repeat=OxmlElement('w:tblHeader');pr.append(repeat)
- doc.add_paragraph().paragraph_format.space_after=Pt(0)
+ sp=doc.add_paragraph();sp.paragraph_format.space_after=Pt(0);sp.paragraph_format.space_before=Pt(0);sp.paragraph_format.line_spacing=Pt(1);sp.add_run().font.size=Pt(1)
 
 lines=text.splitlines();i=0;in_code=False;new_page=False
 while i<len(lines):
@@ -90,7 +91,7 @@ while i<len(lines):
  if line.startswith('!['):
   match=re.match(r'!\[(.*?)\]\((.*?)\)',line)
   p=doc.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.paragraph_format.keep_with_next=True
-  p.add_run().add_picture(str((source.parent/match[2]).resolve()),width=Inches(5.3 if 'network_example' in match[2] else 6.8))
+  p.add_run().add_picture(str((source.parent/match[2]).resolve()),width=Inches(5.3 if 'network_example' in match[2] else 6.3 if 'sensitivity_r3' in match[2] else 6.8))
   i+=1;continue
  if line.startswith('$$'):
   p=doc.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.paragraph_format.space_after=Pt(7)

@@ -7,7 +7,7 @@ STAT 236 Course Project | Fall 2026
 
 ### Abstract
 
-A user who purchases many products creates many links in a projected product network. Whether this helps community recovery depends on the user's preferences. We compare shared-purchaser counts, Jaccard similarity, inverse-activity weighting, and a normalized bipartite SVD baseline on 1,200 simulated datasets with known product categories. The design crosses activity heterogeneity, preference breadth, and purchase density while matching total purchases within each density setting. When active users retain category preferences, Count and Jaccard benefit from concentrated activity. At mean degree 12 and high heterogeneity, their mean misclustering rates are 13.04% and 13.15%, compared with 48.60% for activity weighting and 47.75% for normalized SVD. When the most active users have no category preference, recovery is poor. Weighting gives modest gains at medium heterogeneity but no clear gain at high heterogeneity. Exact category-count calculations and paired comparisons show why limiting user influence can discard useful evidence without restoring information absent from the remaining users. These findings concern the specified simulation model and do not establish a universal ranking of methods.
+A user who purchases many products creates many links in a projected product network. Whether this helps community recovery depends on the user's preferences. We compare shared-purchaser counts, Jaccard similarity, inverse-activity weighting, and normalized bipartite SVD. The frozen main design uses 1,200 simulated datasets with matched purchase totals. At mean degree 12 with focused preferences and high heterogeneity, Count has 13.04% mean error versus 48.60% for weighting. We then conduct explicitly post hoc sensitivity and separation analyses on 3,000 additional datasets. The separation design holds informative purchases fixed while adding uniform background buyers. With 1,000 informative users buying 12 products at r=2 and 50 background users buying 48 products, Count error is 59.05% and Weighted error is 36.02%; both are 35.53% without background. Thus weighting can discard useful evidence when active users are focused and protect recovery when activity is concentrated in preference-free buyers. These conditional findings do not establish a universal threshold or method ranking.
 
 ### 1 Introduction
 
@@ -137,21 +137,37 @@ The identity M-transpose M=Dp^(-1/2) B-transpose Du^(-1) B Dp^(-1/2) connects SV
 
 <!-- page -->
 
-### 7 Discussion and reproducibility
+### 7 Exploratory supplementary analyses
 
-The answer to our first question is that activity heterogeneity changes the leverage of whichever preference behavior is concentrated in active users. With focused users, concentrated activity strengthens Count and Jaccard recovery. With broad active users, it shifts purchases toward users lacking category information, and recovery becomes poor. Matching total purchases controls the data volume, but it does not preserve the amount or arrangement of informative pair evidence.
+After inspecting the main results and external exploratory descriptions, we specified two supplementary analyses and recorded their design before fresh verification runs. These are post hoc analyses, not prespecified main experiments. The original proposal, frozen r=2 settings, and main result files are unchanged. Both additions use the original numerical dependency environment and 100 replicates per condition.
 
-For the second question, activity weighting provides modest improvements over Count under medium heterogeneity with broad active users, but little benefit at high heterogeneity. It can substantially hurt when active users are focused. Jaccard and Count behave similarly in this balanced-popularity design. For the third question, the normalized bipartite SVD baseline offers no universal improvement and can lose much of the recovery advantage obtained by Count. These findings apply to the specified baseline and do not imply that all SVD or co-clustering procedures perform poorly.
+The r=3 sensitivity analysis repeats the complete 12-cell grid with root seed 23604. At mean 12, medium heterogeneity, and broad active users, mean errors are 62.46% for Count, 62.33% for Jaccard, 34.77% for Weighted, and 38.00% for SVD. The paired Count-minus-Weighted advantage is 27.69 percentage points (95% interval 26.13 to 29.25). Stronger preferences make some focused cells easy: at mean 12 and high heterogeneity, Count and Weighted errors are 0.85% and 4.00%. Appendix C reports every r=3 condition.
 
-Several limits constrain interpretation. Projected edges are dependent because one user creates many edges. We do not use an independent-edge stochastic block model or claim a universal recovery threshold. Categories are equal in size, within-category product weights are equal, preferences are single-category, K is known, and only r=2 is studied in the main experiment. We have no real purchase-data validation. Broad-active high heterogeneity simultaneously weakens the information supplied by less active users; it is not a pure test of removing nuisance connections while holding informative evidence fixed. Confidence intervals measure Monte Carlo precision under this model, and comparisons are not adjusted for multiplicity.
+The separation experiment fixes 1,000 informative users at either (m=12, r=2) or (m=6, r=3). It adds A=50 or 200 preference-free users with D/m=1, 2, 4, or 8, plus one A=0 baseline per setting. This gives 18 cells and 1,800 datasets using root seed 23605. Informative matrices are identical across exposure levels within each replicate; background users and purchases are nested. Total purchases and user counts increase, so this answers a different question from the matched-total main design.
 
-A useful extension would hold the informative users' purchases fixed while adding or varying broad active users, separating nuisance-background effects from loss of informative observations. Other extensions include unequal product popularity, mixed preferences, varying r, and controlled ablations of user normalization and diagonal removal. Such experiments should be labeled as additional analyses rather than selected to produce a preferred ranking.
+![Paired weighting effects under fixed informative purchases](../outputs/supplement/figures/separation_differences.png)
 
-The implementation records dataset and k-means seeds, exact activity distributions, package versions, and atomic dataset checkpoints. Pilot and main root seeds are 23601 and 23603, with no overlapping recorded dataset seeds. Python 3.11.14 and all numerical package versions are recorded in the manifests and requirements lockfile. The generator uses NumPy weighted sampling without replacement; spectral extraction uses the largest algebraic eigenvalues; k-means uses 20 starts. Main results contain 1,200 datasets and 4,800 method rows. Five tests check design identities, label matching and zero handling, known partition recovery, uniform-sampling formulas, and theory against simulation.
+Figure 5. Exploratory paired Weighted-minus-Count error differences in percentage points. Negative values favor weighting. These heatmaps summarize specific simulated settings, not a theoretical phase boundary. Recovery curves and complete means are in Appendices D and E.
 
-Across all conditions, mean method runtimes are approximately 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD. Timings include each method's construction or decomposition and clustering, but exclude generation, theoretical calculations, and diagnostics. They were collected with four worker processes and one numerical-library thread per worker, so shared-machine load limits timing generalization.
+With m=12, r=2, A=50, and D=48, Count error is 59.05% versus 36.02% for Weighted. The paired advantage is 23.03 points (95% interval 21.39 to 24.66); the no-background error is 35.53% for both. With m=6, r=3, A=50, and D=24, Count and Weighted errors are 56.83% and 21.63%, versus a 20.55% baseline. The paired advantage is 35.20 points (33.93 to 36.48).
 
-The accompanying code and experiment tables reproduce the analysis. Raw B matrices are regenerated from recorded seeds rather than stored individually. The principal conclusion is conditional: user activity should be interpreted together with preference information. Automatically suppressing active users can discard the strongest available evidence, while suppression alone cannot recover category information absent from the rest of the data.
+All supplementary methods share a recorded k-means seed within each dataset. Count and Weighted give identical errors when D=m, as required by their equivalent normalized matrices. Twenty truth-label permutations per dataset provide a method-specific reference using optimal matching. Cell mean permutation errors range from 62.86% to 63.45% across these supplementary analyses; this is an estimated reference, not a universal 63% line. Within-cell intervals use independent replicates and are unadjusted for multiplicity. Cells within a separation replicate share data and are correlated.
+
+<!-- page -->
+
+### 8 Discussion and reproducibility
+
+Activity heterogeneity changes the leverage of whichever behavior is concentrated in active users. In the frozen r=2 experiment, focused active users improve Count and Jaccard recovery, whereas weighting can discard their evidence. Broad-active high heterogeneity also reduces purchases by informative users, so its poor recovery cannot by itself establish that weighting fails to suppress background interference.
+
+The post hoc analyses clarify this distinction. At r=3, medium-heterogeneity broad-active conditions reveal a substantial weighting benefit. In the separation experiment, the informative matrix stays fixed while extra preference-free purchases are added; weighting and normalized SVD retain much more recovery accuracy than Count or Jaccard in the tested high-activity background settings. The r=2 main study and supplementary analyses address complementary aspects of the original questions. None establishes that D>m alone guarantees a benefit, or identifies a universal crossover in preference strength.
+
+Our conclusions apply to a model with balanced categories, equal within-category product weights, single-category preferences, and known K. We have no real purchase-data validation. Edges in a projection are dependent, so we do not import an independent-edge SBM detection threshold. Zero expected contrast is exact in the sparse high-heterogeneity broad-active cell with one purchase per informative user; it does not imply absence of information in every high-heterogeneity cell. At mean 12, informative users each buy two products and still provide some pair information.
+
+The supplementary settings were motivated by observed results and external exploratory descriptions. Their fresh simulations quantify those selected settings; they do not remove the exploratory selection. The two separation scenarios vary both m and r, so comparisons across scenarios cannot isolate either parameter. We report the full chosen grids, unadjusted paired intervals, and label-permutation references. Further work could study mixed preferences, unequal product popularity, additional preference strengths, and controlled diagonal or normalization ablations.
+
+Reproduction materials record parameters, dataset and k-means seeds, software versions, and atomic checkpoints. The original pilot and main root seeds remain 23601 and 23603. Supplementary generation roots are 23604 and 23605, with permutation namespace 23606. Main datasets use their original independent method seeds; supplementary methods share initialization seeds to check matrix equivalence. Hash checks verify the original proposal and main results are unchanged. Five core tests and three supplementary tests pass, together with saved-result, pairing, and interval audits.
+
+Main-experiment mean method runtimes are approximately 12.5 ms for Count, 12.8 ms for Jaccard, 14.8 ms for Weighted, and 48.2 ms for SVD. These include construction or decomposition and clustering, excluding generation, theory, and diagnostics, with four processes and one numerical-library thread per worker. Timings depend on machine load. Raw purchase matrices can be regenerated from seeds; an example is supplied. The principal conclusion is conditional: downweighting helps when it suppresses the tested preference-free active buyers without discarding the informative purchases, and can hurt when active buyers carry the strongest category evidence.
 
 <!-- page -->
 
@@ -177,6 +193,9 @@ python run_experiments.py --stage main --frozen-config frozen_config.json \
   --workers 4 --resume
 python run_experiments.py --stage main --analyze-only
 python scripts/build_report_assets.py
+python run_experiments.py --stage supplement --workers 4 --resume
+python scripts/validate_supplement.py
+python scripts/build_supplement_materials.py
 ```
 
 For a fresh independent run with the same design, add a new --seed and --output directory and omit --resume. The delivered outputs/main directory contains results.csv, diagnostics.csv, summary.csv, paired_differences.csv, manifest.json, and dataset checkpoints. The experiment manifest is the authoritative record of the completed main design.
@@ -213,3 +232,71 @@ All entries below are percentages, based on 100 datasets per condition. Broad ac
 |12|Medium|Broad active|62.60|62.84|60.23|60.28|
 |12|High|Focused|13.04|13.15|48.60|47.75|
 |12|High|Broad active|62.94|62.94|62.97|63.16|
+
+
+<!-- page -->
+
+### Appendix C Exploratory sensitivity at r equal to 3
+
+The full original grid was rerun at r=3 using 100 fresh datasets per cell. Main r=2 results remain unchanged. All rates below are percentages. Supplementary k-means seeds are shared across methods within a dataset; initialization differences in the original main analysis are retained in its records.
+
+![Exploratory recovery curves at r equal to 3](../outputs/supplement/figures/sensitivity_r3.png)
+
+Figure 6. Full r=3 sensitivity grid. Bars show 95% Monte Carlo intervals over 100 datasets. This is a post hoc sensitivity analysis; some focused settings are near perfect recovery, and all cells are retained.
+
+|Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
+|---|---|---|---|---|---|---|
+|6|Low|Focused|20.24|22.48|20.24|20.24|
+|6|Low|Broad active|35.86|39.20|35.86|35.86|
+|6|Medium|Focused|14.18|14.53|23.66|21.81|
+|6|Medium|Broad active|62.85|62.71|59.81|60.45|
+|6|High|Focused|7.62|7.76|7.62|39.34|
+|6|High|Broad active|63.05|63.02|63.05|63.54|
+|12|Low|Focused|1.60|1.62|1.60|1.60|
+|12|Low|Broad active|4.51|4.58|4.51|4.51|
+|12|Medium|Focused|2.15|2.16|2.12|1.83|
+|12|Medium|Broad active|62.46|62.33|34.77|38.00|
+|12|High|Focused|0.85|0.86|4.00|1.58|
+|12|High|Broad active|62.92|62.87|62.17|62.95|
+
+
+<!-- page -->
+
+### Appendix D Recovery under fixed informative purchases
+
+Each scenario retains the same informative matrix within a replicate. Background users are uniform buyers with r=1. Prefixes of uniform purchase orders and user sets provide nested exposure levels. The first point in each panel is the shared A=0 baseline. Adding background purchases changes the total data volume; this experiment is not matched in density to the main design.
+
+![Recovery after adding preference free background buyers](../outputs/supplement/figures/separation_recovery.png)
+
+Figure 7. Fixed-information separation experiment with 100 replicates per condition and 95% Monte Carlo intervals. The informative-only baseline is reused across panels for the same scenario; those displays are not additional independent baseline datasets.
+
+As D grows, Count and Jaccard become less accurate in the tested settings, while Weighted and SVD remain much closer to their informative-only baselines. Increasing A also degrades Weighted, so weighting does not make recovery immune to background users. The nonmonotone changes in Weighted error across D should not be interpreted as universal improvement from adding more background purchases.
+
+Permutation references randomize the balanced truth labels while preserving fitted cluster sizes. Twenty permutations are averaged within each dataset, then summarized across independent replicates. Their uncertainty includes finite permutation simulation. The full method-specific references are in outputs/supplement/separation/permutation_reference.csv and the sensitivity summary table. They are not a theoretical impossibility boundary.
+
+<!-- page -->
+
+### Appendix E Complete separation experiment means
+
+All errors are percentages from 100 replicates. A is the number of extra background users; D is their number of purchases. The setting names identify informative-user purchase count m and preference ratio r. Each scenario has 1,000 informative users. An A=0 baseline is stored once per scenario. Full paired intervals for all six method comparisons are provided in outputs/supplement/separation/paired_differences.csv.
+
+|Setting|A|D|Count|Jaccard|Weighted|SVD|
+|---|---|---|---|---|---|---|
+|m12_r2|0|12|35.53|36.43|35.53|35.53|
+|m12_r2|50|12|37.06|37.37|37.06|37.06|
+|m12_r2|50|24|45.92|46.31|36.63|36.75|
+|m12_r2|50|48|59.05|59.25|36.02|36.33|
+|m12_r2|50|96|61.67|61.81|35.72|36.10|
+|m12_r2|200|12|40.75|41.55|40.75|40.75|
+|m12_r2|200|24|54.94|55.16|40.19|40.29|
+|m12_r2|200|48|61.51|61.37|39.32|39.76|
+|m12_r2|200|96|62.00|62.00|36.90|38.27|
+|m6_r3|0|6|20.55|22.31|20.55|20.55|
+|m6_r3|50|6|21.83|23.47|21.83|21.83|
+|m6_r3|50|12|31.72|34.38|21.52|21.77|
+|m6_r3|50|24|56.83|57.27|21.63|22.32|
+|m6_r3|50|48|61.37|61.60|21.45|22.70|
+|m6_r3|200|6|25.44|27.25|25.44|25.44|
+|m6_r3|200|12|49.21|50.21|24.84|26.20|
+|m6_r3|200|24|61.01|60.91|24.48|26.95|
+|m6_r3|200|48|62.32|62.37|23.49|26.40|

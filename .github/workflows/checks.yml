@@ -20,3 +20,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Validate saved results and website downloads
         run: python scripts/validate_project.py
+      - name: Validate exploratory supplementary analyses
+        run: python scripts/validate_supplement.py

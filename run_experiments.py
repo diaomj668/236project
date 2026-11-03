@@ -122,7 +122,7 @@ def analyze(out):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--stage',choices=['smoke','pilot','calibrate','main'],default='pilot')
+    parser.add_argument('--stage',choices=['smoke','pilot','calibrate','main','supplement'],default='pilot')
     parser.add_argument('--replicates',type=int)
     parser.add_argument('--n',type=int,default=1000)
     parser.add_argument('--p',type=int,default=300)
@@ -136,6 +136,13 @@ def main():
     parser.add_argument('--analyze-only',action='store_true')
     parser.add_argument('--frozen-config',type=Path,help='Use a reviewed pilot manifest as final parameter settings')
     args = parser.parse_args()
+    if args.stage == 'supplement':
+        if (args.n,args.p,args.k) != (1000,300,3) or args.means or args.r or args.seed is not None or args.frozen_config:
+            parser.error('Supplement uses its separately recorded fixed design; use --output for a fresh reproduction')
+        from supplement import run
+        run(workers=args.workers,replicates=100 if args.replicates is None else args.replicates,resume=args.resume,
+            analyze_only=args.analyze_only,output=args.output)
+        return
     out = args.output or Path(__file__).parent/'outputs'/args.stage
     out.mkdir(parents=True,exist_ok=True)
     if args.analyze_only:

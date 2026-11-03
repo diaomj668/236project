@@ -150,3 +150,31 @@ def theoretical_weights(p, k, degrees, ratios):
     buyer_mean = degrees.sum()/p
     japprox = count / (2*buyer_mean-count)
     return dict(count=count, weighted=weighted, jaccard=japprox)
+
+
+def generate_separation(n_signal, p, k, signal_degree, r, max_noise_users,
+                        max_noise_degree, signal_rng, noise_rng):
+    """Fixed informative purchases plus nested uniform background purchases.
+
+    Returned noise rows are ordered samples: prefixes support nested background
+    degrees and user counts. No information-user purchases change across cells.
+    """
+    if n_signal % 5 or not 2 <= signal_degree <= p:
+        raise ValueError('n_signal must be divisible by 5; require 2 <= signal_degree <= p')
+    if max_noise_users < 0 or not 1 <= max_noise_degree <= p:
+        raise ValueError('Invalid background dimensions')
+    # The established generator validates categories and implements the same PPSWOR.
+    b, z, *_ = generate(n_signal, p, k, signal_degree, 'low', 'focused', r, signal_rng)
+    noise_order = np.array([noise_rng.permutation(p)[:max_noise_degree]
+                            for _ in range(max_noise_users)], dtype=int)
+    return b, z, noise_order
+
+
+def append_background(signal_b, noise_order, users, degree):
+    """Append a nested uniform background without modifying the signal matrix."""
+    if not 0 <= users <= len(noise_order) or not 1 <= degree <= noise_order.shape[1]:
+        raise ValueError('Background selection outside generated dimensions')
+    background = np.zeros((users, signal_b.shape[1]), dtype=float)
+    if users:
+        background[np.arange(users)[:, None], noise_order[:users, :degree]] = 1.
+    return np.vstack([signal_b, background])

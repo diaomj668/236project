@@ -9,6 +9,7 @@
 - [x] Reconstructed example purchase matrix and ground-truth labels in `data/example/`.
 - [x] Interactive English demonstration webpage and report/code downloads.
 - [x] Unit tests and independent validation of saved results and paired intervals.
+- [x] Post hoc r=3 sensitivity and fixed-information/background-addition experiments, with separate design record, seeds, outputs, permutation references, and paired uncertainty.
 - [x] GitHub validation workflow and manual webpage-publication workflow prepared.
 
 ## Remaining before course submission

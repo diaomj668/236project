@@ -1,0 +1,75 @@
+{
+  "analysis_status": "Post hoc exploratory supplement; original proposal and main design unchanged",
+  "design_record_date": "2026-11-03",
+  "selection_basis": "Completed main results and user-supplied external exploratory descriptions; settings not selected from these fresh runs",
+  "n_signal": 1000,
+  "p": 300,
+  "k": 3,
+  "sensitivity": {
+    "root_seed": 23604,
+    "r": 3.0,
+    "means": [
+      6,
+      12
+    ],
+    "heterogeneity": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "preference": [
+      "focused",
+      "broad_active"
+    ]
+  },
+  "separation": {
+    "root_seed": 23605,
+    "settings": [
+      {
+        "name": "m12_r2",
+        "degree": 12,
+        "r": 2.0
+      },
+      {
+        "name": "m6_r3",
+        "degree": 6,
+        "r": 3.0
+      }
+    ],
+    "noise_users": [
+      0,
+      50,
+      200
+    ],
+    "degree_ratios": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "noise_preference_ratio": 1.0,
+    "nesting": "Same informative matrix within setting/replicate; uniform background users and purchase prefixes nested across cells; A=0 represented once"
+  },
+  "kmeans": {
+    "n_init": 20,
+    "seed_policy": "Same recorded initialization seed for all methods within a dataset; also shared across separation cells within replicate"
+  },
+  "null_reference": {
+    "root_seed": 23606,
+    "permutations_per_dataset": 20,
+    "definition": "Permute balanced true product labels, keep fitted labels fixed, and recompute optimal matching; mean permutation error per dataset"
+  },
+  "uncertainty": "95% Student-t intervals over independent replicate units within each cell; all six paired method contrasts; no multiplicity adjustment",
+  "main_results_sha256": "994f5fefeb0ea7554c46f700d62cc1fc634d722d9d2cf22ed0e6b4a283148fcb",
+  "original_proposal_sha256": "edb26824f093958b9327b2fdaee055a5113661989ba2946119d513474cb6677e",
+  "replicates": 100,
+  "python": "3.11.14",
+  "versions": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2",
+    "threadpoolctl": "3.7.0"
+  }
+}

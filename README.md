@@ -119,7 +119,7 @@ Existing output directories require `--resume`, with an exactly matching configu
 
 ## Report and demonstration webpage
 
-The complete English report is available in `deliverables/report.docx`, `deliverables/report.pdf`, and editable Markdown source `deliverables/report.md`. The report contains seven main-text pages, references, and an appendix. It includes the exact theoretical recurrence, all condition-level mean errors, paired confidence intervals, diagnostics, and limitations.
+The complete English report is available in `deliverables/report.docx`, `deliverables/report.pdf`, and editable Markdown source `deliverables/report.md`. The report contains the original main analysis, clearly labeled exploratory supplementary analyses, references, and appendices. It includes the exact theoretical recurrence, all condition-level mean errors, paired confidence intervals, diagnostics, and limitations.
 
 The responsive demonstration webpage is in `website/dist/index.html`. It works locally without external dependencies and includes interactive preference and density controls. To preview it, run `python -m http.server 8765 --directory website/dist` and visit `http://localhost:8765`. Report and reproducibility downloads are included under `website/dist/assets/`.
 
@@ -132,3 +132,27 @@ Before submission, all group members should review the report, confirm author na
 The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow is manual and does not run on push. Run it from the Actions tab after updating website assets to deploy `website/dist`. Both the repository and the demonstration webpage, including its report and code/results downloads, are public with the owner's authorization.
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
+
+## Exploratory supplementary analyses
+
+The original proposal and frozen r=2 main experiment are unchanged. After inspecting the main results and user-supplied exploratory descriptions, we specified two additional analyses in `outputs/supplement/design.json` before running their fresh verification simulations. They are post hoc exploratory analyses, not preregistered main analyses. All supplementary experiments use the same dependency environment as the original numerical work.
+
+1. **Preference sensitivity:** the entire original 12-cell grid at r=3, with 100 new datasets per cell and root seed 23604.
+2. **Separation experiment:** 1,000 informative users, with settings (m=12, r=2) and (m=6, r=3). Add A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; include A=0 once per setting. Each of the 18 cells has 100 replicates. Root seed 23605 generates informative and background samples. Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike the matched-total main design.
+
+All four methods share a recorded k-means seed within each supplementary dataset, and across separation cells within a replicate. This helps verify the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The unchanged main study used its original independently recorded method seeds.
+
+A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within the separation experiment are correlated. Paired method intervals are unadjusted for multiplicity.
+
+```bash
+python run_experiments.py --stage supplement --workers 4 --resume
+python scripts/validate_supplement.py
+```
+
+On a machine with different Python/package metadata, use a new output folder to reproduce the same statistical design:
+
+```bash
+python run_experiments.py --stage supplement --workers 4 --output outputs/supplement_reproduced
+```
+
+Supplementary results, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
