@@ -1,0 +1,102 @@
+\begin{table}[H]
+\centering\small
+\caption{Main experiment ($r=2$): mean misclustering rate (\%) over 100 data sets per condition.}
+\label{tab:main}
+\begin{tabular}{@{}cllcccc@{}}
+\toprule
+$m$ & Heterogeneity & Active users & \textsc{Count} & \textsc{Jaccard} & \textsc{Weighted} & \textsc{SVD} \\
+\midrule
+6 & low & focused & 59.8 & 59.9 & 59.8 & 59.8 \\
+6 & low & broad & 60.5 & 60.8 & 60.6 & 60.5 \\
+6 & medium & focused & 53.2 & 53.9 & 58.8 & 58.8 \\
+6 & medium & broad & 62.8 & 62.9 & 62.1 & 62.6 \\
+6 & high & focused & 41.3 & 42.3 & 41.2 & 59.7 \\
+6 & high & broad & 62.9 & 62.6 & 62.9 & 63.2 \\
+\addlinespace
+12 & low & focused & 35.5 & 36.3 & 35.3 & 35.5 \\
+12 & low & broad & 48.5 & 49.2 & 48.5 & 48.5 \\
+12 & medium & focused & 22.4 & 22.7 & 39.0 & 37.0 \\
+12 & medium & broad & 62.6 & 62.8 & 60.2 & 60.3 \\
+12 & high & focused & 13.0 & 13.1 & 48.6 & 47.8 \\
+12 & high & broad & 62.9 & 62.9 & 63.0 & 63.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\small
+\caption{Post hoc sensitivity at $r=3$: mean misclustering rate (\%).}
+\label{tab:r3}
+\begin{tabular}{@{}cllcccc@{}}
+\toprule
+$m$ & Heterogeneity & Active users & \textsc{Count} & \textsc{Jaccard} & \textsc{Weighted} & \textsc{SVD} \\
+\midrule
+6 & low & focused & 20.2 & 22.5 & 20.2 & 20.2 \\
+6 & low & broad & 35.9 & 39.2 & 35.9 & 35.9 \\
+6 & medium & focused & 14.2 & 14.5 & 23.7 & 21.8 \\
+6 & medium & broad & 62.9 & 62.7 & 59.8 & 60.5 \\
+6 & high & focused & 7.6 & 7.8 & 7.6 & 39.3 \\
+6 & high & broad & 63.1 & 63.0 & 63.1 & 63.5 \\
+\addlinespace
+12 & low & focused & 1.6 & 1.6 & 1.6 & 1.6 \\
+12 & low & broad & 4.5 & 4.6 & 4.5 & 4.5 \\
+12 & medium & focused & 2.1 & 2.2 & 2.1 & 1.8 \\
+12 & medium & broad & 62.5 & 62.3 & 34.8 & 38.0 \\
+12 & high & focused & 0.9 & 0.9 & 4.0 & 1.6 \\
+12 & high & broad & 62.9 & 62.9 & 62.2 & 63.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\small
+\caption{Post hoc sensitivity at $r=4$: mean misclustering rate (\%).}
+\label{tab:r4}
+\begin{tabular}{@{}cllcccc@{}}
+\toprule
+$m$ & Heterogeneity & Active users & \textsc{Count} & \textsc{Jaccard} & \textsc{Weighted} & \textsc{SVD} \\
+\midrule
+6 & low & focused & 4.7 & 5.0 & 4.7 & 4.7 \\
+6 & low & broad & 10.5 & 11.0 & 10.5 & 10.5 \\
+6 & medium & focused & 4.8 & 4.9 & 5.4 & 4.3 \\
+6 & medium & broad & 62.7 & 62.6 & 53.9 & 56.5 \\
+6 & high & focused & 2.1 & 2.1 & 2.1 & 10.4 \\
+6 & high & broad & 62.7 & 62.9 & 62.7 & 63.2 \\
+\addlinespace
+12 & low & focused & 0.1 & 0.1 & 0.1 & 0.1 \\
+12 & low & broad & 0.5 & 0.5 & 0.5 & 0.5 \\
+12 & medium & focused & 0.3 & 0.3 & 0.1 & 0.1 \\
+12 & medium & broad & 61.0 & 61.2 & 9.6 & 10.8 \\
+12 & high & focused & 0.1 & 0.1 & 0.3 & 0.1 \\
+12 & high & broad & 62.9 & 62.9 & 60.7 & 62.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[H]
+\centering\small
+\caption{Fixed-information experiment: mean misclustering rate (\%) over 100 data sets. $A$ is the number of added preference-free users and $D/m$ their purchases relative to the informative users.}
+\label{tab:separation}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Informative users & $A$ & $D/m$ & \textsc{Count} & \textsc{Jaccard} & \textsc{Weighted} & \textsc{SVD} \\
+\midrule
+$m=12$, $r=2$ & 0 & -- & 35.5 & 36.4 & 35.5 & 35.5 \\
+ & 50 & 1 & 37.1 & 37.4 & 37.1 & 37.1 \\
+ & 50 & 2 & 45.9 & 46.3 & 36.6 & 36.8 \\
+ & 50 & 4 & 59.0 & 59.2 & 36.0 & 36.3 \\
+ & 50 & 8 & 61.7 & 61.8 & 35.7 & 36.1 \\
+ & 200 & 1 & 40.7 & 41.5 & 40.7 & 40.7 \\
+ & 200 & 2 & 54.9 & 55.2 & 40.2 & 40.3 \\
+ & 200 & 4 & 61.5 & 61.4 & 39.3 & 39.8 \\
+ & 200 & 8 & 62.0 & 62.0 & 36.9 & 38.3 \\
+\addlinespace
+$m=6$, $r=3$ & 0 & -- & 20.5 & 22.3 & 20.5 & 20.5 \\
+ & 50 & 1 & 21.8 & 23.5 & 21.8 & 21.8 \\
+ & 50 & 2 & 31.7 & 34.4 & 21.5 & 21.8 \\
+ & 50 & 4 & 56.8 & 57.3 & 21.6 & 22.3 \\
+ & 50 & 8 & 61.4 & 61.6 & 21.4 & 22.7 \\
+ & 200 & 1 & 25.4 & 27.3 & 25.4 & 25.4 \\
+ & 200 & 2 & 49.2 & 50.2 & 24.8 & 26.2 \\
+ & 200 & 4 & 61.0 & 60.9 & 24.5 & 27.0 \\
+ & 200 & 8 & 62.3 & 62.4 & 23.5 & 26.4 \\
+\bottomrule
+\end{tabular}
+\end{table}

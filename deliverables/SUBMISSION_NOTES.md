@@ -2,9 +2,7 @@
 
 All project materials are in English. The original proposal is preserved unchanged.
 
-- `report.pdf`: 16 pages comprising nine main-text pages, references, and theoretical/results appendices. Supplementary analyses are explicitly labeled post hoc.
-- `report.docx`: editable Word report with the same content.
-- `report.md`: editable report source.
+- `report.pdf`: 12pt LaTeX report with eight main-text pages, references, and appendices (theory, complete results, reproducibility). Post hoc analyses are labeled as such. Source: `paper/report.tex`.
 - `website.zip`: portable interactive webpage and all download assets.
 - `reproducibility.zip`: code, tests, dependency versions, recorded seeds, result tables, figures, and one reconstructed raw dataset.
 - `webpage-preview.png`: screenshot of the previously verified interactive results view.

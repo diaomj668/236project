@@ -4,13 +4,15 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from shutil import copy2
 ROOT=Path(__file__).resolve().parents[1]
 assets=ROOT/'website/dist/assets'
-for name in ['report.docx','report.pdf']:
+for name in ['report.pdf']:
  copy2(ROOT/'deliverables'/name,assets/name)
 for name in ['results.csv','diagnostics.csv','summary.csv','paired_differences.csv','manifest.json']:
  copy2(ROOT/'outputs/main'/name,assets/name)
 files=[ROOT/name for name in ['model.py','run_experiments.py','figures.py','supplement.py','supplement_figures.py','README.md','RESULTS.md','requirements.txt','requirements-lock.txt','frozen_config.json']]
 files+=list((ROOT/'tests').glob('*.py'))+list((ROOT/'scripts').glob('*.py'))
-files+=[ROOT/'deliverables/report.md',ROOT/'SUBMISSION_CHECKLIST.md',ROOT/'236 proposal.pdf']
+files+=[ROOT/'SUBMISSION_CHECKLIST.md',ROOT/'236 proposal.pdf']
+files+=[ROOT/'paper'/n for n in ['report.tex','references.bib','make_figures.py','make_tables.py']]
+files+=list((ROOT/'paper/figures').glob('*.pdf'))+list((ROOT/'paper/tables').glob('*.tex'))+list((ROOT/'paper/data').glob('*.csv'))
 files+=list((ROOT/'data/example').glob('*'))
 files+=list((ROOT/'.github/workflows').glob('*.yml'))
 for stage in ['pilot','main']:

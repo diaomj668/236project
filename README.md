@@ -5,7 +5,7 @@ This project implements the main simulation design in the proposal. This directo
 ## Project materials
 
 - [Full report (PDF)](deliverables/report.pdf)
-- [Editable report (Word)](deliverables/report.docx)
+- [Report source (LaTeX)](paper/report.tex)
 - [Results summary](RESULTS.md)
 - [Original proposal](236%20proposal.pdf), preserved without content changes
 - [Interactive webpage source](website/dist/index.html) and [portable website download](deliverables/website.zip)
@@ -119,11 +119,21 @@ Existing output directories require `--resume`, with an exactly matching configu
 
 ## Report and demonstration webpage
 
-The complete English report is available in `deliverables/report.docx`, `deliverables/report.pdf`, and editable Markdown source `deliverables/report.md`. The report contains the original main analysis, clearly labeled exploratory supplementary analyses, references, and appendices. It includes the exact theoretical recurrence, all condition-level mean errors, paired confidence intervals, diagnostics, and limitations.
+The report is `deliverables/report.pdf` (12pt, eight main-text pages plus references and appendices). Its LaTeX source is in `paper/`: `report.tex`, `references.bib`, `make_figures.py` (all report figures, written as vector PDFs to `paper/figures/`), and `make_tables.py` (appendix tables in `paper/tables/`). Both scripts read only the saved experiment outputs. To rebuild:
+
+```bash
+cd paper
+python make_figures.py
+python make_tables.py
+latexmk -pdf report.tex
+cp report.pdf ../deliverables/report.pdf
+```
+
+`make_figures.py` regenerates the focused main datasets once to measure user-influence shares and caches them in `paper/data/`.
 
 The responsive demonstration webpage is in `website/dist/index.html`. It works locally without external dependencies and includes interactive preference and density controls. To preview it, run `python -m http.server 8765 --directory website/dist` and visit `http://localhost:8765`. Report and reproducibility downloads are included under `website/dist/assets/`.
 
-`scripts/build_report_assets.py` rebuilds the additional plots and compact website dataset from recorded results. `scripts/build_report.py` builds the Word document and requires `python-docx` in the document-authoring environment; it is not needed to run the statistical experiments. PDF rendering uses the bundled document renderer. Document-authoring dependencies are separate from the statistical requirements lockfile.
+`scripts/build_report_assets.py` rebuilds the compact website dataset and auxiliary plots from recorded results.
 
 Before submission, all group members should review the report, confirm author names and the course requirement regarding overlap with existing research, and confirm the webpage is accessible to the intended class audience.
 
