@@ -59,12 +59,12 @@ def separation_table():
 if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     text = grid_table(ROOT / 'outputs/main/summary.csv',
-                      r'Main experiment ($r=2$): mean misclustering rate (\%) over 100 data sets per condition.',
+                      r'Results at $r=2$: mean misclustering rate (\%) over 100 data sets per condition.',
                       'tab:main')
     text += grid_table(SUP / 'sensitivity_r3/summary.csv',
-                       r'Post hoc sensitivity at $r=3$: mean misclustering rate (\%).', 'tab:r3')
+                       r'Results at $r=3$: mean misclustering rate (\%).', 'tab:r3')
     text += grid_table(SUP / 'sensitivity_r4/summary.csv',
-                       r'Post hoc sensitivity at $r=4$: mean misclustering rate (\%).', 'tab:r4')
+                       r'Results at $r=4$: mean misclustering rate (\%).', 'tab:r4')
     text += separation_table()
     (OUT / 'error_tables.tex').write_text(text)
     print('wrote', OUT / 'error_tables.tex')
