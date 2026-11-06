@@ -42,28 +42,62 @@ def make_figures(df, summary, out):
     figure_rest(df, out, folder)
 
 
+NAMES = dict(zip(METHODS, ['Count', 'Jaccard', 'Weighted', 'SVD']))
+COLORS = dict(zip(METHODS, ['#28658e', '#c47b24', '#328269', '#9e5362']))
+# Count and Jaccard nearly coincide, so methods are dodged horizontally and Count is drawn on top.
+OFFSETS = dict(zip(METHODS, [-.09, -.03, .03, .09]))
+DRAW_ORDER = ['bipartite_svd', 'weighted', 'jaccard', 'count']
+
+
+def label_line_ends(ax, ends, gap=4.2):
+    """Label lines at their right end, nudging labels apart; merge them when lines end together."""
+    ends = sorted(ends)
+    if ends[-1][0]-ends[0][0] < gap:
+        ax.text(2.2, np.mean([y for y, _, _ in ends]), 'All methods', color='#444444',
+                va='center', fontsize=8.5, fontweight='bold')
+        return
+    placed = []
+    for y, text, color in ends:
+        if placed and y-placed[-1] < gap:
+            y = placed[-1]+gap
+        placed.append(y)
+        ax.text(2.2, y, text, color=color, va='center', fontsize=8.5, fontweight='bold')
+
+
 def recovery_figures(df, summary, folder):
     reference = random_label_reference()
+    means = sorted(df.mean_purchases.unique(), reverse=True)
     for r in sorted(df.r.unique()):
-        fig, axes = plt.subplots(len(df.mean_purchases.unique()),2,figsize=(11,3.5*len(df.mean_purchases.unique())),sharey=True)
-        for ax,(mean,pref) in zip(axes.flat,[(m,p) for m in sorted(df['mean_purchases'].unique()) for p in ['focused','broad_active']]):
-            data=summary[(summary.metric=='error')&(summary['mean_purchases']==mean)&(summary.preference==pref)&(summary.r==r)]
-            for method in METHODS:
-                s=data[data.method==method].set_index('heterogeneity').reindex(['low','medium','high'])
+        fig, axes = plt.subplots(len(means), 2, figsize=(10.5, 3.3*len(means)), sharey=True, squeeze=False)
+        for ax, (mean, pref) in zip(axes.flat, [(m, p) for m in means for p in ['focused', 'broad_active']]):
+            data = summary[(summary.metric=='error')&(summary['mean_purchases']==mean)&(summary.preference==pref)&(summary.r==r)]
+            if reference is not None:
+                ax.axhspan(100*reference[0], 100*reference[1], color='#bdbdbd', lw=0, zorder=0)
+                ax.text(-.25, 100*reference[1]+1.2, 'random labels', ha='left', va='bottom', fontsize=8, color='#777777')
+            ax.grid(axis='y', color='#eeeeee', zorder=0)
+            ax.spines[['top', 'right']].set_visible(False)
+            ends = []
+            for method in DRAW_ORDER:
+                s = data[data.method==method].set_index('heterogeneity').reindex(['low','medium','high'])
+                y = 100*s['mean'].to_numpy()
+                error = np.vstack([y-100*s.ci_low.to_numpy(), 100*s.ci_high.to_numpy()-y])
+                x = np.arange(3)+OFFSETS[method]
+                count = method == 'count'
+                ax.plot(x, y, color=COLORS[method], lw=2.4 if count else 1.6, zorder=4 if count else 3)
                 # Intervals need >=2 replicates; smoke runs show points only.
-                y=s['mean'].to_numpy()
-                error=np.vstack([y-s.ci_low.to_numpy(),s.ci_high.to_numpy()-y])
-                ax.errorbar(range(3),y,yerr=error if np.isfinite(error).all() else None,marker='o',capsize=3,label=method)
-            ax.set(title=f'Mean purchases={mean}; {pref}',xticks=range(3),xticklabels=['low','medium','high'],ylabel='Misclustering rate',xlabel='Activity heterogeneity')
-            ax.set_ylim(0,1)
-            add_reference(ax, reference)
-        axes.flat[0].legend(fontsize=8)
-        title=f'Recovery (r={r:g}); bars: 95% Monte Carlo CI for mean'
-        if reference is not None:
-            title+=f'\nGray band: random-label reference ({100*reference[0]:.1f}–{100*reference[1]:.1f}%)'
-        fig.suptitle(title)
+                ax.errorbar(x, y, yerr=error if np.isfinite(error).all() else None, fmt='o', ms=5, lw=1,
+                            capsize=0, color=COLORS[method], mfc='white' if method == 'jaccard' else COLORS[method], zorder=5)
+                ends.append((y[-1], NAMES[method], COLORS[method]))
+            label_line_ends(ax, ends)
+            ax.set(title=f'Mean {mean} purchases · {"focused" if pref == "focused" else "broad active"}',
+                   xticks=range(3), xticklabels=['Low', 'Medium', 'High'], xlim=(-.3, 2.75), ylim=(0, 70))
+        for ax in axes[:, 0]:
+            ax.set_ylabel('Misclustering rate (%)')
+        for ax in axes[-1]:
+            ax.set_xlabel('Activity heterogeneity')
+        fig.suptitle(f'Recovery at r={r:g}: mean misclustering rate with 95% Monte Carlo intervals', fontsize=11.5)
         fig.tight_layout()
-        fig.savefig(folder/f'recovery_r{r:g}.png'); plt.close(fig)
+        fig.savefig(folder/f'recovery_r{r:g}.png', dpi=180); plt.close(fig)
 
 
 def figure_rest(df, out, folder):

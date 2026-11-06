@@ -88,7 +88,7 @@ The primary metric is the misclustering rate after the best matching of cluster 
 
 ![Community recovery over the complete experiment grid](../outputs/main/figures/recovery_r2.png)
 
-Figure 3. Mean misclustering rate across activity heterogeneity, with 95% Monte Carlo confidence intervals. Columns distinguish preference settings; rows distinguish mean purchase counts. Every point summarizes 100 datasets. Lower values indicate better recovery. The dashed line and gray band mark the random-label reference (62.9% to 63.4%) estimated in Section 7.
+Figure 3. Mean misclustering rate across activity heterogeneity, with 95% Monte Carlo confidence intervals. Columns distinguish preference settings; rows distinguish mean purchase counts. Every point summarizes 100 datasets. Lower values indicate better recovery. Methods are offset slightly within each heterogeneity level so that overlapping points stay visible; Count and Jaccard differ by at most 1.03 points. The gray line marks the random-label reference (62.9% to 63.4%) estimated in Section 7.
 
 Focused active users improve Count and Jaccard recovery. At mean 12, Count error falls from 35.51% under low heterogeneity to 22.36% under medium and 13.04% under high heterogeneity; Jaccard gives 36.33%, 22.65%, and 13.15%. Weighted moves the other way, at 35.31%, 39.05%, and 48.60%, and SVD is similar at 35.46%, 37.01%, and 47.75%.
 
