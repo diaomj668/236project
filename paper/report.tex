@@ -35,7 +35,7 @@
 
 \begin{abstract}
 \noindent
-Product networks built from purchase data link two products whenever the same customer buys both. A customer who buys $d$ products contributes $d(d-1)/2$ links, so very active customers can dominate the network, and a common response is to downweight them. We ask when this helps. In a simulation with known product categories, we compare raw co-purchase counts, Jaccard similarity, inverse-activity weighting, and a normalized SVD of the user--product matrix while varying how unevenly activity is spread, whether active users have category preferences, and how strong those preferences are. When active users focus on one category they carry most of the signal, and downweighting them is costly: with the most concentrated activity, weighting raises the misclustering rate from 13\% to 49\%. When active users buy indiscriminately and preferences are weak, no method recovers the categories; with stronger preferences, weighting lowers the error by up to 52 percentage points. Experiments that hold informative purchases fixed confirm this: added preference-free heavy buyers drive raw counts to chance while weighting stays near its baseline. Activity is not a proxy for noise; whether to downweight it depends on what active users buy.
+Product networks built from purchase data link two products whenever the same customer buys both. A customer who buys $d$ products contributes $d(d-1)/2$ links, so very active customers can dominate the network, and a common response is to downweight them. We ask when this helps. In a simulation with known product categories, we compare raw co-purchase counts, Jaccard similarity, inverse-activity weighting, and a normalized SVD of the user--product matrix while varying how unevenly activity is spread, whether active users have category preferences, and how strong those preferences are. When active users focus on one category they carry most of the signal, and downweighting them is costly: with the most concentrated activity, weighting raises the misclustering rate from 13\% to 49\%. When active users buy indiscriminately and preferences are weak, no method recovers the categories; with stronger preferences, weighting lowers the error by up to 52 percentage points. A second design that holds informative purchases fixed confirms this: added preference-free heavy buyers drive raw counts to chance while weighting stays near its baseline. Activity is not a proxy for noise; whether to downweight it depends on what active users buy.
 \end{abstract}
 
 % =====================================================================
@@ -59,7 +59,7 @@ Whether this is a good idea depends on what active users buy, which the weightin
   \label{fig:schematic}
 \end{figure}
 
-We answer these questions with a simulation in which product categories are known, total purchases are matched across conditions, and expected edge weights can be computed exactly; all methods are applied to the same data sets.
+We answer these questions with a simulation in which product categories are known and expected edge weights can be computed exactly. Making heavy buyers indiscriminate both adds noise and, if the amount of data is held fixed, removes informative purchases, so we use two complementary designs: one holds total purchases fixed and one holds the informative purchases fixed. All methods are applied to the same data sets.
 
 \paragraph{Related work.} Our $1/(d-1)$ weight follows \citet{newman2001}. \citet{zhou2007} also discount active users in a resource-allocation projection for recommendation. The SVD baseline is motivated by bipartite spectral co-clustering \citep{dhillon2001} and its extension to directed graphs \citep{rohe2016}, though we do not implement either algorithm exactly.
 
@@ -108,7 +108,11 @@ Two facts follow directly. A user with $r_u=1$ has $q^{\text{same}}_u=q^{\text{d
 % =====================================================================
 \section{Experimental design}
 
-We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number of purchases per user, $m\in\{6,12\}$. \emph{Activity heterogeneity} determines how those purchases are spread: equally, or with 20\% of users buying three or more times the mean. Total purchases are identical across heterogeneity levels, so only their concentration changes. \emph{Preference breadth} is either \emph{focused}, where every user has $r_u=r$, or \emph{broad active}, where the 20\% most active users have $r_u=1$ and the rest keep $r_u=r$. Activity is assigned independently of the preferred category. Finally, the \emph{preference strength} $r\in\{2,3,4\}$ sets how strongly focused users favour their category. Crossing the four factors gives 36 conditions, each with 100 independent data sets.
+Turning the most active users into indiscriminate buyers changes two things. It adds heavy buyers whose pairs carry no category information, and, if the amount of data is held fixed, it takes purchases away from the users who do carry information. No single design can hold both total purchases and informative purchases fixed while doing so, so we use two complementary designs. The \emph{matched-total} design fixes the total number of purchases and asks whether concentrating a fixed amount of activity in a few users helps or hurts each method. The \emph{fixed-information} design fixes the informative users' purchases and adds preference-free heavy buyers on top, which isolates the effect of background noise. Every condition in both designs has 100 independent data sets.
+
+\subsection{Matched-total design}
+
+We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number of purchases per user, $m\in\{6,12\}$. \emph{Activity heterogeneity} determines how those purchases are spread: equally, or with 20\% of users buying three or more times the mean. Total purchases are identical across heterogeneity levels, so only their concentration changes. \emph{Preference breadth} is either \emph{focused}, where every user has $r_u=r$, or \emph{broad active}, where the 20\% most active users have $r_u=1$ and the rest keep $r_u=r$. Activity is assigned independently of the preferred category. Finally, the \emph{preference strength} $r\in\{2,3,4\}$ sets how strongly focused users favour their category. Crossing the four factors gives 36 conditions.
 
 \begin{table}[t]
   \centering
@@ -126,12 +130,18 @@ We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number o
 
 The settings were fixed after a pilot of 10 data sets per condition. Following our proposal, we required at least two conditions with a median error between 5\% and 40\% for some method; four met it at $r=2$, so we kept the initial design, without regard to which method performed best. We first ran the $r=2$ grid and then the same grid at $r=3$ and $r=4$, the upper value in our proposal, with identical code and fresh seeds.
 
+\subsection{Fixed-information design}
+
+We fix 1{,}000 informative users in one of two settings ($m=12$, $r=2$ or $m=6$, $r=3$), then add $A=50$ or $200$ users with no category preference who each buy $D$ products, with $D/m\in\{1,2,4,8\}$, plus one baseline with no added users. This gives 18 conditions. Within each replicate the informative purchases are identical across conditions, and the added users and their purchases are nested, so comparisons across conditions isolate the background. Unlike the matched-total design, total purchases grow as background is added. We added this design after the matched-total results at $r=2$ showed that the two effects were confounded.
+
+\subsection{Evaluation}
+
 Our primary measure is the \emph{misclustering rate}: the fraction of the 300 products assigned to the wrong category after the best matching of cluster labels to categories. To judge how far a method is from chance, we permute the true labels and recompute the matched error; across all conditions this random-label reference lies between 62.9\% and 63.5\%. All intervals are 95\% intervals for a mean over 100 independent data sets. Method comparisons are paired within data sets and are not adjusted for multiple comparisons.
 
 % =====================================================================
 \section{Results}
 
-\subsection{Recovery at $r=2$}
+\subsection{Matched-total design at $r=2$}
 
 \Cref{fig:recovery} summarizes the results at $r=2$. When active users are focused (left column), concentrating activity helps \Count{} and \Jac{} but hurts \Wtd{} and \SVD. At $m=12$, \Count{} error falls from 35.5\% under equal activity to 22.4\% and then 13.0\% as activity becomes more concentrated, while \Wtd{} rises from 35.3\% to 39.1\% and 48.6\%. Heavy buyers who stay within their category are the most informative users in the data, and the count projection lets them speak loudest.
 
@@ -150,7 +160,7 @@ When the active users are broad (right column), recovery is poor under medium an
 
 Comparing \Count{} and \Wtd{} on the same data sets isolates the effect of weighting (all 12 paired differences at $r=2$ are shown in \cref{fig:paired}). With focused active users, weighting costs 16.7 percentage points at $m=12$ and medium heterogeneity (95\% interval 15.2 to 18.2) and 35.6 points at high heterogeneity (34.1 to 37.0). Its only clear gains occur with broad active users at medium heterogeneity, 2.4 points at $m=12$ (1.8 to 3.0) and 0.7 points at $m=6$, and both leave the error close to chance. Under equal activity the two networks are proportional, so their normalized matrices are identical and the small differences come from $k$-means initialization.
 
-Why does weighting not rescue the broad-active conditions? At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, a confound we address below and in \cref{sec:posthoc}.
+Why does weighting not rescue the broad-active conditions? At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, which is the confound the fixed-information design removes (\cref{sec:fixed}).
 
 \subsection{Stronger preferences}
 
@@ -163,19 +173,10 @@ Raising the preference strength changes the picture (\cref{fig:strength}; comple
   \label{fig:strength}
 \end{figure}
 
-\subsection{Jaccard and the bipartite SVD}
+\subsection{Adding background to fixed informative purchases}
+\label{sec:fixed}
 
-\Count{} and \Jac{} are nearly interchangeable here: their edge weights have a mean Spearman correlation of 0.97 and their mean errors never differ by more than 1.0 point, although their partitions still differ (mean adjusted Rand index 0.70). This is expected when all products in a category are equally popular.
-
-The bipartite \SVD{} tracks \Wtd{}, as \eqref{eq:svd} predicts, and offers no general advantage: with focused users at $m=12$ and high heterogeneity its error exceeds that of \Count{} by 34.7 points (33.2 to 36.2), and at $m=6$ it trails both projections (59.7\% against 41\%).
-
-% =====================================================================
-\section{Holding the informative purchases fixed}
-\label{sec:posthoc}
-
-Because total purchases are matched, the broad-active conditions change two things at once: they add noisy heavy buyers and take purchases away from informative users. After seeing the results above, we designed two further analyses to separate these effects and to explain the behaviour of the SVD. Each condition again uses 100 fresh data sets.
-
-\paragraph{Adding background buyers.} To isolate the effect of noisy heavy buyers, we fixed 1{,}000 informative users in one of two settings ($m=12$, $r=2$ or $m=6$, $r=3$), then added $A=50$ or $200$ users with no preference who each buy $D$ products, with $D/m\in\{1,2,4,8\}$. Within each replicate the informative purchases are identical across conditions. Unlike the matched design above, total purchases now grow as background is added.
+Holding the informative purchases fixed separates the two effects (\cref{fig:separation}). In the first setting, 50 background users buying $4m=48$ products each push \Count{} from 35.5\% to 59.1\%, whereas \Wtd{} stays at 36.0\%; the paired difference is 23.0 points (21.4 to 24.7). In the second setting the difference at $D=4m$ is 35.2 points (33.9 to 36.5). When $D=m$ the background users are no more active than anyone else, weighting cannot single them out, and the two methods give identical results. Weighting does not make recovery immune to background: with 200 background users, \Wtd{} also loses a few points.
 
 \begin{figure}[t]
   \centering
@@ -184,9 +185,13 @@ Because total purchases are matched, the broad-active conditions change two thin
   \label{fig:separation}
 \end{figure}
 
-The result is clear (\cref{fig:separation}). In the first setting, 50 background users buying $4m=48$ products each push \Count{} from 35.5\% to 59.1\%, whereas \Wtd{} stays at 36.0\%; the paired difference is 23.0 points (21.4 to 24.7). In the second setting the difference at $D=4m$ is 35.2 points (33.9 to 36.5). When $D=m$ the background users are no more active than anyone else, weighting cannot single them out, and the two methods give identical results. Weighting does not make recovery immune to background: with 200 background users, \Wtd{} also loses a few points.
+\subsection{Jaccard and the bipartite SVD}
 
-\paragraph{Why the SVD fails at $m=6$.} Users with one purchase contribute nothing to any projection but still enter the SVD through $D_u$, $D_p$, and the diagonal of $M^\top M$. Rerunning the SVD on the recorded data sets without them (after checking that the original errors are reproduced exactly) brings it in line with \Count{} at $m=6$; at $m=12$, where no user buys a single product, nothing changes (\cref{tab:ablation}).
+\Count{} and \Jac{} are nearly interchangeable here: their edge weights have a mean Spearman correlation of 0.97 and their mean errors never differ by more than 1.0 point, although their partitions still differ (mean adjusted Rand index 0.70). This is expected when all products in a category are equally popular.
+
+The bipartite \SVD{} tracks \Wtd{}, as \eqref{eq:svd} predicts, and offers no general advantage: with focused users at $m=12$ and high heterogeneity its error exceeds that of \Count{} by 34.7 points (33.2 to 36.2), and at $m=6$ it trails both projections (59.7\% against 41\%).
+
+Why does the \SVD{} fail at $m=6$? Users with one purchase contribute nothing to any projection but still enter the SVD through $D_u$, $D_p$, and the diagonal of $M^\top M$. In a follow-up check, rerunning the SVD on the recorded data sets without them (after checking that the original errors are reproduced exactly) brings it in line with \Count{} at $m=6$; at $m=12$, where no user buys a single product, nothing changes (\cref{tab:ablation}).
 
 \begin{table}[t]
   \centering
@@ -214,7 +219,7 @@ The result is clear (\cref{fig:separation}). In the first setting, 50 background
 
 \textbf{Q3.} The normalized bipartite SVD behaves much like the weighted projection, as \eqref{eq:svd} predicts, offers no general advantage, and is hurt by single-purchase users.
 
-\paragraph{Limitations.} Our model is deliberately simple: balanced categories, equally popular products within a category, single-category preferences, and known $K$. Projected edges are dependent, so we do not use detection thresholds for independent-edge models. The fixed-information experiment was designed after seeing the matched-design results. We did not study $r<2$ or real purchase data.
+\paragraph{Limitations.} Our model is deliberately simple: balanced categories, equally popular products within a category, single-category preferences, and known $K$. Projected edges are dependent, so we do not use detection thresholds for independent-edge models. The fixed-information design was added after the matched-total results at $r=2$ revealed the confound. We did not study $r<2$ or real purchase data.
 
 \paragraph{Conclusion.} Activity is not a proxy for noise: downweighting heavy buyers helps when they buy at random and hurts when they are focused.
 
@@ -257,7 +262,7 @@ Averaging over a uniformly drawn preferred category gives $q^{\text{same}}=A/[Ks
 \section{Reproducibility}
 \label{app:repro}
 
-All simulations use Python 3.11 with the package versions recorded in \texttt{requirements-lock.txt}. Root seeds are 23601 (pilot), 23603 ($r=2$), 23604 ($r=3$), 23605 (fixed-information experiment), 23607 ($r=4$), and 23606 (label permutations). Every data set's seed and $k$-means seed is stored, so any purchase matrix can be regenerated without storing it. In the $r=3$, $r=4$, and fixed-information data sets all methods share one $k$-means seed, which makes the exact equivalence of \Count{} and \Wtd{} under equal activity visible in the results. Unit tests check the design identities, label matching, recovery of a known partition, and the theoretical moments against simulation; validation scripts check every saved summary and paired interval. Mean runtimes per data set were 12.5\,ms for \Count, 12.8\,ms for \Jac, 14.8\,ms for \Wtd, and 48.2\,ms for \SVD, excluding data generation. The repository, \url{https://github.com/diaomj668/236project}, lists the commands that reproduce every result and figure in this report.
+All simulations use Python 3.11 with the package versions recorded in \texttt{requirements-lock.txt}. Root seeds are 23601 (pilot), 23603 ($r=2$), 23604 ($r=3$), 23605 (fixed-information design), 23607 ($r=4$), and 23606 (label permutations). Every data set's seed and $k$-means seed is stored, so any purchase matrix can be regenerated without storing it. In the $r=3$, $r=4$, and fixed-information data sets all methods share one $k$-means seed, which makes the exact equivalence of \Count{} and \Wtd{} under equal activity visible in the results. Unit tests check the design identities, label matching, recovery of a known partition, and the theoretical moments against simulation; validation scripts check every saved summary and paired interval. Mean runtimes per data set were 12.5\,ms for \Count, 12.8\,ms for \Jac, 14.8\,ms for \Wtd, and 48.2\,ms for \SVD, excluding data generation. The repository, \url{https://github.com/diaomj668/236project}, lists the commands that reproduce every result and figure in this report.
 
 \section{Complete results}
 \label{app:tables}

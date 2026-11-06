@@ -38,7 +38,7 @@ def separation_table():
     e = s.pivot_table(index=['setting', 'noise_users', 'degree_ratio'], columns='method', values='mean') * 100
     names = {'m12_r2': r'$m=12$, $r=2$', 'm6_r3': r'$m=6$, $r=3$'}
     lines = [r'\begin{table}[H]', r'\centering\small',
-             r'\caption{Fixed-information experiment: mean misclustering rate (\%) over 100 data sets. '
+             r'\caption{Fixed-information design: mean misclustering rate (\%) over 100 data sets. '
              r'$A$ is the number of added preference-free users and $D/m$ their purchases relative to the informative users.}',
              r'\label{tab:separation}', r'\begin{tabular}{@{}lcccccc@{}}', r'\toprule',
              r'Informative users & $A$ & $D/m$ & ' + HEAD + r' \\', r'\midrule']

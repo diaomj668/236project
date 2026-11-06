@@ -1,8 +1,8 @@
 # Simulation Results
 
-The study crosses preference strength r ∈ {2, 3, 4} with the 12-condition activity × preference × density grid, giving 36 conditions with 100 independent datasets each (3,600 datasets, 14,400 method-level records). The r=2 grid was run first after a pilot of 120 datasets; the r=3 and r=4 grids followed with identical code and fresh seeds (root seeds 23603, 23604, and 23607). All rates below are mean misclustering percentages.
+The study uses two complementary designs. Making the most active users indiscriminate both adds noise and, when total purchases are fixed, removes informative purchases; no single design can hold both fixed. Design 1 (matched total) holds total purchases fixed and crosses preference strength r ∈ {2, 3, 4} with the 12-condition activity × preference × density grid, giving 36 conditions with 100 independent datasets each (3,600 datasets). Design 2 (fixed information) holds the informative users' purchases fixed and adds preference-free heavy buyers (18 conditions, 1,800 datasets). The r=2 grid was run first after a pilot of 120 datasets; the r=3 and r=4 grids followed with identical code and fresh seeds (root seeds 23603, 23604, and 23607). All rates below are mean misclustering percentages.
 
-## r=2
+## Design 1 (matched total): r=2
 
 |Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
 |---|---|---|---|---|---|---|
@@ -19,7 +19,7 @@ The study crosses preference strength r ∈ {2, 3, 4} with the 12-condition acti
 |12|High|Focused|13.04|13.15|48.60|47.75|
 |12|High|Broad active|62.94|62.94|62.97|63.16|
 
-## r=3
+## Design 1 (matched total): r=3
 
 |Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
 |---|---|---|---|---|---|---|
@@ -36,7 +36,7 @@ The study crosses preference strength r ∈ {2, 3, 4} with the 12-condition acti
 |12|High|Focused|0.85|0.86|4.00|1.58|
 |12|High|Broad active|62.92|62.87|62.17|62.95|
 
-## r=4
+## Design 1 (matched total): r=4
 
 |Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
 |---|---|---|---|---|---|---|
@@ -55,7 +55,7 @@ The study crosses preference strength r ∈ {2, 3, 4} with the 12-condition acti
 
 Assignment coverage was 100% for all methods. Confidence intervals are in `outputs/main/summary.csv` (r=2) and `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/` (`summary.csv`, `paired_differences.csv`).
 
-## Key comparisons
+## Key comparisons in Design 1
 
 - With focused active users, weighting is costly at r=2: at mean 12 and high heterogeneity, Count error is 13.04% and Weighted 48.60% (paired difference 35.57 points, 95% interval 34.14 to 36.99). Stronger preferences make focused conditions easy, so this cost shrinks; at r=4, Count, Jaccard, and Weighted stay below 5.4% in every focused condition.
 - With broad active users at mean 12 and medium heterogeneity, the paired Count-minus-Weighted difference grows from 2.36 points at r=2 to 27.69 points at r=3 (26.13 to 29.25) and 51.50 points at r=4 (50.84 to 52.15). Weighted reaches 34.77% at r=3 and 9.55% at r=4 while Count stays near 61–63%.
@@ -63,11 +63,11 @@ Assignment coverage was 100% for all methods. Confidence intervals are in `outpu
 
 These results apply to the specified sampling scheme with balanced product categories and equal within-category product popularity. They do not establish that any method is universally superior.
 
-## Fixed-information experiment
+## Design 2 (fixed information)
 
-This experiment was designed after seeing the matched-total results, to separate added background from lost informative purchases.
+Design 2 was added after the matched-total results at r=2 showed that added background and lost informative purchases were confounded.
 
-The separation experiment fixes 1,000 informative users, then adds uniform background users. The following rows are illustrative; all 18 conditions are reported in `outputs/supplement/separation/` and the report appendix.
+Design 2 fixes 1,000 informative users, then adds uniform background users. The following rows are illustrative; all 18 conditions are reported in `outputs/supplement/separation/` and the report appendix.
 
 |Informative setting|Extra users|Purchases per extra user|Count error|Weighted error|SVD error|
 |---|---|---|---|---|---|
@@ -76,7 +76,7 @@ The separation experiment fixes 1,000 informative users, then adds uniform backg
 |m=6, r=3|0|—|20.55%|20.55%|20.55%|
 |m=6, r=3|50|24|56.83%|21.63%|22.32%|
 
-The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) and 35.20 points (33.93 to 36.48). Informative matrices are identical across exposure levels within each replicate, while background users and purchases are nested. Total users and purchases increase, unlike the matched-total main design. Count and Weighted are exactly equivalent when all contributing users have the same purchase count; shared k-means seeds verify this control.
+The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) and 35.20 points (33.93 to 36.48). Informative matrices are identical across exposure levels within each replicate, while background users and purchases are nested. Total users and purchases increase, unlike Design 1. Count and Weighted are exactly equivalent when all contributing users have the same purchase count; shared k-means seeds verify this control.
 
 Twenty label permutations per dataset estimate a method-specific matching-adjusted reference. Mean reference errors span 62.86%–63.45% across conditions; this is not a universal 63% chance-error constant. No independent-edge SBM threshold or universal preference crossover is claimed.
 

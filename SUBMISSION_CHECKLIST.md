@@ -10,7 +10,7 @@
 - [x] Interactive English demonstration webpage and report/code downloads.
 - [x] Unit tests and independent validation of saved results and paired intervals.
 - [x] SVD ablation (single-purchase users removed) with exact reproduction of saved SVD errors; random-label reference lines on recovery figures.
-- [x] Preference strengths r=2, 3, and 4 (36 conditions, 3,600 datasets) and the fixed-information experiment, with design records, seeds, outputs, permutation references, and paired uncertainty.
+- [x] Design 1 (matched total) at r=2, 3, and 4 (36 conditions, 3,600 datasets) and Design 2 (fixed information, 18 conditions, 1,800 datasets), with design records, seeds, outputs, permutation references, and paired uncertainty.
 - [x] User-influence figure comparing exact and simulated contrast shares.
 - [x] GitHub validation workflow, and a webpage-publication workflow that deploys automatically after validation passes on `main`.
 

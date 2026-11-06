@@ -32,7 +32,7 @@ def sensitivity_figure(out,r):
                xticks=np.arange(3),xticklabels=['Low','Medium','High'],ylabel='Misclustering rate (%)',xlabel='Activity heterogeneity',ylim=(-1,70))
         add_reference(ax,reference,scale=100)
     axes[0,0].legend(fontsize=8)
-    fig.suptitle(f'Exploratory sensitivity analysis at r={r} (gray band: random-label reference)',fontsize=13)
+    fig.suptitle(f'Design 1 (matched total) at r={r}: mean misclustering rate with 95% intervals; dashed line: random-label reference',fontsize=12)
     fig.tight_layout();fig.savefig(figs/f'sensitivity_r{r}.png');plt.close(fig)
 
 def make_figures(out):
@@ -54,7 +54,7 @@ def make_figures(out):
                    xlabel='Background / informative purchase count',ylim=(-1,70))
             add_reference(ax,reference,scale=100)
     axes[0,0].legend(fontsize=8)
-    fig.suptitle('Exploratory separation analysis with fixed informative purchases (gray band: random-label reference)',fontsize=12)
+    fig.suptitle('Design 2 (fixed information): added preference-free users; dashed line: random-label reference',fontsize=12)
     fig.tight_layout();fig.savefig(figs/'separation_recovery.png');plt.close(fig)
     p=pd.read_csv(out/'separation/paired_differences.csv')
     p=p[(p.method_a=='count')&(p.method_b=='weighted')&(p.noise_users>0)].copy()

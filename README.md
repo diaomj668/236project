@@ -143,17 +143,17 @@ The `Validate project` workflow runs unit tests and saved-result/asset checks on
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
 
-## Preference strengths r=3 and r=4 and the fixed-information experiment
+## Design 1 at r=3 and r=4, and Design 2 (fixed information)
 
 The r=2 grid lives in `outputs/main/`. The r=3 grid (root seed 23604) and the r=4 grid (root seed 23607) rerun the same 12 conditions with identical code and 100 fresh datasets per condition; their outputs are in `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/`. The folder name `supplement` is kept so that recorded paths and validation hashes stay stable.
 
-The fixed-information experiment was designed after seeing the matched-total results. It uses 1,000 informative users with settings (m=12, r=2) and (m=6, r=3), then adds A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; A=0 is included once per setting. Each of the 18 cells has 100 replicates (root seed 23605). Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike the matched-total grids.
+The study uses two complementary designs: Design 1 (matched total) holds total purchases fixed, and Design 2 (fixed information) holds the informative users' purchases fixed and adds preference-free heavy buyers. Design 2 was added after the matched-total results at r=2 showed that the two effects were confounded. It uses 1,000 informative users with settings (m=12, r=2) and (m=6, r=3), then adds A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; A=0 is included once per setting. Each of the 18 cells has 100 replicates (root seed 23605). Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike Design 1.
 
 In the r=3, r=4, and fixed-information datasets, all four methods share a recorded k-means seed within each dataset (and across separation cells within a replicate). This verifies the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
 
-A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within the fixed-information experiment are correlated. Paired method intervals are unadjusted for multiplicity.
+A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within Design 2 are correlated. Paired method intervals are unadjusted for multiplicity.
 
-The r=3 grid and the fixed-information experiment are run together:
+The r=3 grid and Design 2 are run together:
 
 ```bash
 python run_experiments.py --stage supplement --workers 4 --resume
@@ -183,4 +183,4 @@ python scripts/build_supplement_materials.py
 
 `scripts/build_user_influence.py` regenerates the focused main datasets from their recorded seeds and draws the report's user-influence figure (`report-assets/user_influence.png`), comparing exact and simulated shares of block contrast supplied by the most active users. Recovery figures in the report and webpage show the random-label reference as a dashed line.
 
-Results for r=3, r=4, the fixed-information experiment, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the r=3 and fixed-information analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
+Results for r=3, r=4, Design 2, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the r=3 grid and Design 2; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
