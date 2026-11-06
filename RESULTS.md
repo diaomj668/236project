@@ -1,43 +1,71 @@
-# Main Simulation Results
+# Simulation Results
 
-The main experiment completed 1,200 independent datasets (12 conditions with 100 replicates each). Each dataset was evaluated by four methods, giving 4,800 method-level records. The pilot used another 120 datasets with seeds disjoint from the main experiment. Parameter settings are recorded in `frozen_config.json`.
+The study crosses preference strength r ∈ {2, 3, 4} with the 12-condition activity × preference × density grid, giving 36 conditions with 100 independent datasets each (3,600 datasets, 14,400 method-level records). The r=2 grid was run first after a pilot of 120 datasets; the r=3 and r=4 grids followed with identical code and fresh seeds (root seeds 23603, 23604, and 23607). All rates below are mean misclustering percentages.
 
-## Mean misclustering rates
+## r=2
 
-|Mean purchases|Heterogeneity|Preference|Count|Jaccard|Weighted|Bipartite SVD|
+|Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
 |---|---|---|---|---|---|---|
-|6|high|broad_active|0.6287|0.6264|0.6287|0.6321|
-|6|high|focused|0.4128|0.4231|0.4123|0.5970|
-|6|low|broad_active|0.6054|0.6083|0.6056|0.6054|
-|6|low|focused|0.5977|0.5994|0.5976|0.5975|
-|6|medium|broad_active|0.6283|0.6291|0.6213|0.6260|
-|6|medium|focused|0.5317|0.5392|0.5881|0.5884|
-|12|high|broad_active|0.6294|0.6294|0.6297|0.6316|
-|12|high|focused|0.1304|0.1315|0.4860|0.4775|
-|12|low|broad_active|0.4853|0.4917|0.4855|0.4848|
-|12|low|focused|0.3551|0.3633|0.3531|0.3546|
-|12|medium|broad_active|0.6260|0.6284|0.6023|0.6028|
-|12|medium|focused|0.2236|0.2265|0.3905|0.3701|
+|6|Low|Focused|59.77|59.94|59.76|59.75|
+|6|Low|Broad active|60.54|60.83|60.56|60.54|
+|6|Medium|Focused|53.17|53.92|58.81|58.84|
+|6|Medium|Broad active|62.83|62.91|62.13|62.60|
+|6|High|Focused|41.28|42.31|41.23|59.70|
+|6|High|Broad active|62.87|62.64|62.87|63.21|
+|12|Low|Focused|35.51|36.33|35.31|35.46|
+|12|Low|Broad active|48.53|49.17|48.55|48.48|
+|12|Medium|Focused|22.36|22.65|39.05|37.01|
+|12|Medium|Broad active|62.60|62.84|60.23|60.28|
+|12|High|Focused|13.04|13.15|48.60|47.75|
+|12|High|Broad active|62.94|62.94|62.97|63.16|
 
-Assignment coverage was 100% for all methods. Confidence intervals are available in `outputs/main/summary.csv`; paired method differences are in `outputs/main/paired_differences.csv`.
+## r=3
 
-These results apply to the specified sampling scheme with balanced product categories and equal within-category product popularity. They do not establish that any method is universally superior. Recovery was poor under the broad-active preference setting; these conditions remain in the study as part of the results.
+|Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
+|---|---|---|---|---|---|---|
+|6|Low|Focused|20.24|22.48|20.24|20.24|
+|6|Low|Broad active|35.86|39.20|35.86|35.86|
+|6|Medium|Focused|14.18|14.53|23.66|21.81|
+|6|Medium|Broad active|62.85|62.71|59.81|60.45|
+|6|High|Focused|7.62|7.76|7.62|39.34|
+|6|High|Broad active|63.05|63.02|63.05|63.54|
+|12|Low|Focused|1.60|1.62|1.60|1.60|
+|12|Low|Broad active|4.51|4.58|4.51|4.51|
+|12|Medium|Focused|2.15|2.16|2.12|1.83|
+|12|Medium|Broad active|62.46|62.33|34.77|38.00|
+|12|High|Focused|0.85|0.86|4.00|1.58|
+|12|High|Broad active|62.92|62.87|62.17|62.95|
 
-## Validation
+## r=4
 
-- All five unit tests passed, including checks of theoretical formulas against simulation.
-- Main-experiment dataset counts, replicate counts, method pairing, purchase means, and both total-weight identities passed integrity checks.
-- Regenerating a dataset from its recorded seed reproduced method metrics and theoretical values.
-- Resuming the pilot did not duplicate completed records.
-- Confidence intervals treat datasets as independent units. Paired differences are calculated by subtracting method errors within the same dataset before aggregation.
+|Mean|Activity|Preferences|Count|Jaccard|Weighted|SVD|
+|---|---|---|---|---|---|---|
+|6|Low|Focused|4.72|5.01|4.72|4.72|
+|6|Low|Broad active|10.51|11.03|10.51|10.51|
+|6|Medium|Focused|4.78|4.90|5.38|4.28|
+|6|Medium|Broad active|62.66|62.64|53.95|56.47|
+|6|High|Focused|2.07|2.12|2.07|10.43|
+|6|High|Broad active|62.70|62.91|62.70|63.24|
+|12|Low|Focused|0.15|0.14|0.15|0.15|
+|12|Low|Broad active|0.49|0.50|0.49|0.49|
+|12|Medium|Focused|0.28|0.29|0.15|0.13|
+|12|Medium|Broad active|61.05|61.21|9.55|10.80|
+|12|High|Focused|0.06|0.06|0.31|0.10|
+|12|High|Broad active|62.86|62.95|60.74|62.10|
 
-## Supplementary results
+Assignment coverage was 100% for all methods. Confidence intervals are in `outputs/main/summary.csv` (r=2) and `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/` (`summary.csv`, `paired_differences.csv`).
 
-The original r=2 results above are unchanged. An additional design was recorded before fresh verification runs. The supplementary analyses use the original dependency environment, separate root seeds, and 100 replicates per cell. They comprise 1,200 r=3 sensitivity datasets and 1,800 fixed-information separation datasets.
+## Key comparisons
 
-At r=3, mean 12, medium heterogeneity, and broad active users, Count error is 62.46%, Jaccard 62.33%, Weighted 34.77%, and SVD 38.00%. The paired Count-minus-Weighted difference is 27.69 percentage points (95% Monte Carlo interval 26.13 to 29.25). Some focused r=3 cells become easy; the full grid is retained.
+- With focused active users, weighting is costly at r=2: at mean 12 and high heterogeneity, Count error is 13.04% and Weighted 48.60% (paired difference 35.57 points, 95% interval 34.14 to 36.99). Stronger preferences make focused conditions easy, so this cost shrinks; at r=4, Count, Jaccard, and Weighted stay below 5.4% in every focused condition.
+- With broad active users at mean 12 and medium heterogeneity, the paired Count-minus-Weighted difference grows from 2.36 points at r=2 to 27.69 points at r=3 (26.13 to 29.25) and 51.50 points at r=4 (50.84 to 52.15). Weighted reaches 34.77% at r=3 and 9.55% at r=4 while Count stays near 61–63%.
+- High-heterogeneity broad-active conditions stay near the random-label reference at every r, because the remaining focused users buy only one or two products each.
 
-A later r=4 grid (the proposal's upper pilot value, root seed 23607, 1,200 further datasets) strengthens this pattern. In the same mean-12, medium-heterogeneity, broad-active condition, Count error is 61.05%, Jaccard 61.21%, Weighted 9.55%, and SVD 10.80%; the paired Count-minus-Weighted difference is 51.50 points (50.84 to 52.15). Count, Jaccard, and Weighted errors are below 5.4% in every focused r=4 cell. High-heterogeneity broad-active cells stay near the permutation reference because the remaining focused users buy only one or two products each.
+These results apply to the specified sampling scheme with balanced product categories and equal within-category product popularity. They do not establish that any method is universally superior.
+
+## Fixed-information experiment
+
+This experiment was designed after seeing the matched-total results, to separate added background from lost informative purchases.
 
 The separation experiment fixes 1,000 informative users, then adds uniform background users. The following rows are illustrative; all 18 conditions are reported in `outputs/supplement/separation/` and the report appendix.
 
@@ -48,12 +76,11 @@ The separation experiment fixes 1,000 informative users, then adds uniform backg
 |m=6, r=3|0|—|20.55%|20.55%|20.55%|
 |m=6, r=3|50|24|56.83%|21.63%|22.32%|
 
-The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) and 35.20 points (33.93 to 36.48). Informative matrices are identical across exposure levels within each replicate, while background users and purchases are nested. Total users and purchases increase, unlike the matched-total main design. Count and Weighted are exactly equivalent when all contributing users have the same purchase count; shared supplementary k-means seeds verify this control.
+The respective paired advantages of Weighted are 23.03 points (21.39 to 24.66) and 35.20 points (33.93 to 36.48). Informative matrices are identical across exposure levels within each replicate, while background users and purchases are nested. Total users and purchases increase, unlike the matched-total main design. Count and Weighted are exactly equivalent when all contributing users have the same purchase count; shared k-means seeds verify this control.
 
-Twenty label permutations per dataset estimate a method-specific matching-adjusted reference. Mean reference errors span 62.86%–63.45% across supplementary cells; this is not a universal 63% chance-error constant. No independent-edge SBM threshold or universal preference crossover is claimed.
+Twenty label permutations per dataset estimate a method-specific matching-adjusted reference. Mean reference errors span 62.86%–63.45% across conditions; this is not a universal 63% chance-error constant. No independent-edge SBM threshold or universal preference crossover is claimed.
 
-The combined conclusion is conditional: weighting can discard useful evidence from focused active buyers, and it can protect recovery against the tested preference-free active buyers when informative purchases are retained.
-
+The combined conclusion is conditional: weighting can discard useful evidence from focused active buyers, and it can protect recovery against preference-free active buyers when informative purchases are retained.
 
 ## SVD ablation
 
@@ -66,3 +93,11 @@ In focused, high-heterogeneity cells at mean 6, 80% of users buy one product. Th
 |Mean 6, high, focused, r=3|800|7.62|7.62|39.34|7.62|31.72 (29.44 to 34.00)|
 
 Removing single-purchase users makes SVD match Count in both mean-6 cells. The mean-12 cell has no single-purchase users and is unchanged; there SVD tracks Weighted because both downweight active users.
+
+## Validation
+
+- All unit tests passed, including checks of theoretical formulas against simulation.
+- Main-experiment dataset counts, replicate counts, method pairing, purchase means, and both total-weight identities passed integrity checks.
+- Regenerating a dataset from its recorded seed reproduced method metrics and theoretical values.
+- Resuming the pilot did not duplicate completed records.
+- Confidence intervals treat datasets as independent units. Paired differences are calculated by subtracting method errors within the same dataset before aggregation.

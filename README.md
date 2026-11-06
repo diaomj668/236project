@@ -70,7 +70,7 @@ The full 1,200 purchase matrices are not stored individually; their seeds and al
 
 ## Design and implementation
 
-The main design uses n=1,000 users, p=300 products, K=3 categories, mean purchase counts of 6 and 12, three activity distributions (`low`, `medium`, and `high`), two preference settings (`focused` and `broad_active`), and r=2. This gives 12 experimental conditions.
+The main design uses n=1,000 users, p=300 products, K=3 categories, mean purchase counts of 6 and 12, three activity distributions (`low`, `medium`, and `high`), two preference settings (`focused` and `broad_active`), and three preference strengths r=2, 3, and 4. This gives 12 conditions per preference strength and 36 in total, each with 100 datasets. The r=2 grid was run first after the pilot; the r=3 and r=4 grids followed with identical code and fresh seeds.
 
 Under medium heterogeneity, 80% of users purchase mean/2 products and 20% purchase 3 times the mean. Under high heterogeneity, 80% purchase mean/6 products and 20% purchase 13 times the mean divided by 3. Means are exactly matched across activity distributions. Product categories have equal sizes. Each user's preferred category is drawn independently and uniformly, giving approximately balanced preference groups. Activity is assigned independently of preferred category. Ties in selecting the most active 20% are broken randomly. Under `broad_active`, these users have r=1.
 
@@ -143,16 +143,17 @@ The `Validate project` workflow runs unit tests and saved-result/asset checks on
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
 
-## Supplementary analyses
+## Preference strengths r=3 and r=4 and the fixed-information experiment
 
-The original r=2 design and results are unchanged. Two additional analyses are specified in `outputs/supplement/design.json` and were run as fresh verification simulations. All supplementary experiments use the same dependency environment as the original numerical work.
+The r=2 grid lives in `outputs/main/`. The r=3 grid (root seed 23604) and the r=4 grid (root seed 23607) rerun the same 12 conditions with identical code and 100 fresh datasets per condition; their outputs are in `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/`. The folder name `supplement` is kept so that recorded paths and validation hashes stay stable.
 
-1. **Preference sensitivity:** the entire original 12-cell grid at r=3, with 100 new datasets per cell and root seed 23604.
-2. **Separation experiment:** 1,000 informative users, with settings (m=12, r=2) and (m=6, r=3). Add A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; include A=0 once per setting. Each of the 18 cells has 100 replicates. Root seed 23605 generates informative and background samples. Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike the matched-total main design.
+The fixed-information experiment was designed after seeing the matched-total results. It uses 1,000 informative users with settings (m=12, r=2) and (m=6, r=3), then adds A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; A=0 is included once per setting. Each of the 18 cells has 100 replicates (root seed 23605). Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike the matched-total grids.
 
-All four methods share a recorded k-means seed within each supplementary dataset, and across separation cells within a replicate. This helps verify the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
+In the r=3, r=4, and fixed-information datasets, all four methods share a recorded k-means seed within each dataset (and across separation cells within a replicate). This verifies the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
 
-A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within the separation experiment are correlated. Paired method intervals are unadjusted for multiplicity.
+A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within the fixed-information experiment are correlated. Paired method intervals are unadjusted for multiplicity.
+
+The r=3 grid and the fixed-information experiment are run together:
 
 ```bash
 python run_experiments.py --stage supplement --workers 4 --resume
@@ -173,7 +174,7 @@ python scripts/svd_ablation.py --workers 4
 
 Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`.
 
-An r=4 sensitivity grid reruns the full original 12-cell design at r=4, the upper pilot value listed in the proposal (the pilot itself ran only r=2). It uses root seed 23607, permutation namespace [23606, 2], 100 datasets per cell, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. It was run with the locked package versions under Python 3.11.9:
+The r=4 grid uses root seed 23607, permutation namespace [23606, 2], 100 datasets per condition, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. r=4 is the upper preference value listed in the proposal. It was run with the locked package versions under Python 3.11.9:
 
 ```bash
 python scripts/sensitivity_r4.py --workers 4
@@ -182,4 +183,4 @@ python scripts/build_supplement_materials.py
 
 `scripts/build_user_influence.py` regenerates the focused main datasets from their recorded seeds and draws the report's user-influence figure (`report-assets/user_influence.png`), comparing exact and simulated shares of block contrast supplied by the most active users. Recovery figures in the report and webpage show the random-label reference as a dashed line.
 
-Supplementary results, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
+Results for r=3, r=4, the fixed-information experiment, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the r=3 and fixed-information analyses; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
