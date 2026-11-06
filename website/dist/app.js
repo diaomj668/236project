@@ -24,6 +24,7 @@ function update(){
  const tbody=document.querySelector('#result-table');tbody.replaceChildren();
  for(const h of levels){const tr=document.createElement('tr');const th=document.createElement('th');th.scope='row';th.textContent=h[0].toUpperCase()+h.slice(1);tr.append(th);for(const m of methods){const r=data.find(r=>r.method===m&&r.heterogeneity===h),td=document.createElement('td');td.textContent=`${(r.mean*100).toFixed(2)}%`;td.title=`95% MC CI: ${(r.ci_low*100).toFixed(2)}–${(r.ci_high*100).toFixed(2)}%`;tr.append(td);}tbody.append(tr);}
  document.querySelector('#preference-note').textContent=`Focused users have preferred-category weight ${strength} versus 1 elsewhere. Active users broad sets that ratio to 1 for the most active 20%. High heterogeneity at mean 12 means 80% buy 2 products and 20% buy 52; at mean 6, the counts are 1 and 26. `+(strength>2?`This r=${strength} grid is a post hoc exploratory sensitivity analysis.`:'This r=2 grid is the unchanged frozen main study.');
+ document.querySelector('#chart-caption').textContent='Bars show 95% Monte Carlo confidence intervals for means over 100 datasets. Total purchases are matched across activity distributions. '+(strength===2?'This r=2 grid is the frozen main study.':`The r=${strength} grid is an additional exploratory analysis designed after the r=2 results.`);
  const focused=preference==='focused';
  document.querySelector('#finding-title').textContent=focused?'Active buyers can carry the signal.':'Less influence does not create more signal.';
  if(strength===4){
