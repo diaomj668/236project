@@ -143,14 +143,14 @@ The `Validate project` workflow runs unit tests and saved-result/asset checks on
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
 
-## Exploratory supplementary analyses
+## Supplementary analyses
 
-The original proposal and frozen r=2 main experiment are unchanged. After inspecting the main results and user-supplied exploratory descriptions, we specified two additional analyses in `outputs/supplement/design.json` before running their fresh verification simulations. They are post hoc exploratory analyses, not preregistered main analyses. All supplementary experiments use the same dependency environment as the original numerical work.
+The original r=2 design and results are unchanged. Two additional analyses are specified in `outputs/supplement/design.json` and were run as fresh verification simulations. All supplementary experiments use the same dependency environment as the original numerical work.
 
 1. **Preference sensitivity:** the entire original 12-cell grid at r=3, with 100 new datasets per cell and root seed 23604.
 2. **Separation experiment:** 1,000 informative users, with settings (m=12, r=2) and (m=6, r=3). Add A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; include A=0 once per setting. Each of the 18 cells has 100 replicates. Root seed 23605 generates informative and background samples. Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike the matched-total main design.
 
-All four methods share a recorded k-means seed within each supplementary dataset, and across separation cells within a replicate. This helps verify the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The unchanged main study used its original independently recorded method seeds.
+All four methods share a recorded k-means seed within each supplementary dataset, and across separation cells within a replicate. This helps verify the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
 
 A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within the separation experiment are correlated. Paired method intervals are unadjusted for multiplicity.
 
@@ -165,7 +165,7 @@ On a machine with different Python/package metadata, use a new output folder to 
 python run_experiments.py --stage supplement --workers 4 --output outputs/supplement_reproduced
 ```
 
-A post hoc SVD ablation reruns the unchanged bipartite SVD on the recorded focused high-heterogeneity datasets after removing users with exactly one purchase. It reproduces the saved SVD errors before applying the change:
+An SVD ablation reruns the unchanged bipartite SVD on the recorded focused high-heterogeneity datasets after removing users with exactly one purchase. It reproduces the saved SVD errors before applying the change:
 
 ```bash
 python scripts/svd_ablation.py --workers 4
@@ -173,7 +173,7 @@ python scripts/svd_ablation.py --workers 4
 
 Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`.
 
-A post hoc r=4 sensitivity grid reruns the full original 12-cell design at r=4, the upper pilot value listed in the proposal (the pilot itself ran only r=2). It uses root seed 23607, permutation namespace [23606, 2], 100 datasets per cell, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. It was run with the locked package versions under Python 3.11.9:
+An r=4 sensitivity grid reruns the full original 12-cell design at r=4, the upper pilot value listed in the proposal (the pilot itself ran only r=2). It uses root seed 23607, permutation namespace [23606, 2], 100 datasets per cell, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. It was run with the locked package versions under Python 3.11.9:
 
 ```bash
 python scripts/sensitivity_r4.py --workers 4
