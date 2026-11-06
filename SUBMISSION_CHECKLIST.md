@@ -12,7 +12,7 @@
 - [x] Post hoc SVD ablation (single-purchase users removed) with exact reproduction of saved SVD errors; random-label reference lines on recovery figures.
 - [x] Post hoc r=3 sensitivity and fixed-information/background-addition experiments, with separate design record, seeds, outputs, permutation references, and paired uncertainty.
 - [x] Post hoc r=4 sensitivity grid (upper pilot value in the proposal) and a user-influence figure comparing exact and simulated contrast shares.
-- [x] GitHub validation workflow and manual webpage-publication workflow prepared.
+- [x] GitHub validation workflow, and a webpage-publication workflow that deploys automatically after validation passes on `main`.
 
 ## Remaining before course submission
 

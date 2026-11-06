@@ -129,7 +129,7 @@ Before submission, all group members should review the report, confirm author na
 
 ## GitHub automation and publication
 
-The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow is manual and does not run on push. Run it from the Actions tab after updating website assets to deploy `website/dist`. Both the repository and the demonstration webpage, including its report and code/results downloads, are public with the owner's authorization.
+The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow deploys `website/dist` automatically after `Validate project` passes on a push to `main`, so a push that fails validation is not published. It can also be run manually from the Actions tab. Both the repository and the demonstration webpage, including its report and code/results downloads, are public with the owner's authorization.
 
 No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
 

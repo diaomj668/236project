@@ -1,6 +1,11 @@
 name: Publish demonstration webpage
-# Manual publication of the public project demonstration webpage.
+# Publishes website/dist automatically after "Validate project" passes on a push to main.
+# It can also be run manually from the Actions tab.
 on:
+  workflow_run:
+    workflows: ['Validate project']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,12 +16,18 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Deploy exactly the commit that passed validation.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
