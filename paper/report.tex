@@ -13,7 +13,7 @@
 \usepackage[capitalise,noabbrev]{cleveref}
 \usepackage{enumitem}
 \usepackage{float}
-
+\usepackage{indentfirst}
 \setlength{\parskip}{0.35em}
 \setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
 \setlist{itemsep=1pt,topsep=3pt}
@@ -35,17 +35,17 @@
 
 \begin{abstract}
 \noindent
-Product networks built from purchase data link two products whenever the same customer buys both. A customer who buys $d$ products contributes $d(d-1)/2$ links, so very active customers can dominate the network, and a common response is to downweight them. We ask when this helps. In a simulation with known product categories, we compare raw co-purchase counts, Jaccard similarity, inverse-activity weighting, and a normalized SVD of the user--product matrix while varying how unevenly activity is spread, whether active users have category preferences, and how strong those preferences are. When active users focus on one category they carry most of the signal, and downweighting them is costly: with the most concentrated activity, weighting raises the misclustering rate from 13\% to 49\%. When active users buy indiscriminately and preferences are weak, no method recovers the categories; with stronger preferences, weighting lowers the error by up to 52 percentage points. A second design that holds informative purchases fixed confirms this: added preference-free heavy buyers drive raw counts to chance while weighting stays near its baseline. Activity is not a proxy for noise; whether to downweight it depends on what active users buy.
+Product networks built from purchase data link two products whenever the same customer buys both. A customer who buys $d$ products contributes $\frac{d(d-1)}{2}$ links, so very active customers can dominate the network. A common response is to downweight them; we ask when this helps. In a simulation with known product categories, we compare raw co-purchase counts, Jaccard similarity, inverse-activity weighting, and a normalized SVD of the user--product matrix while varying how unevenly activity is spread, whether active users have category preferences, and how strong those preferences are. When active users focus on one category they carry most of the signal, then downweighting them is costly: with the most concentrated activity, weighting raises the misclustering rate from 13\% to 49\%. When active users buy indiscriminately and preferences are weak, no method recovers the categories; with stronger preferences, weighting lowers the error by up to 52 percentage points. A second design that holds informative purchases fixed confirms this: added preference-free heavy buyers drive raw counts to chance while weighting stays near its baseline. Activity is not a proxy for noise, and whether to downweight it depends on what active users buy.
 \end{abstract}
 
 % =====================================================================
 \section{Introduction}
 
-Purchase records form a bipartite network between users and products. A standard way to analyse such data is to \emph{project} it onto the products, connecting two products when they share buyers, and then to cluster the resulting network \citep{vonluxburg2007,ke2026}. The clusters describe groups of products that tend to be bought by the same people.
+Purchase records form a bipartite network between users and products. A standard way to analyze such data is to \emph{project} it onto the products, connecting two products when they share buyers, and then to cluster the resulting network \citep{vonluxburg2007,ke2026}. The clusters describe groups of products that tend to be bought by the same people.
 
-The projection has a well-known weakness: a user who buys $d$ distinct products creates $d(d-1)/2$ product pairs, so a handful of heavy buyers can supply most of the edge weight. The usual remedy, going back to the collaboration networks of \citet{newman2001}, is to give each user's pairs weight $1/(d-1)$, which makes a user's total contribution grow only linearly.
+The projection has a well-known weakness: a user who buys $d$ distinct products creates $\frac{d(d-1)}{2}$ product pairs, so a handful of heavy buyers can supply most of the edge weight. The common remedy, going back to the collaboration networks of \citet{newman2001}, is to give each user's pairs weight $\frac{1}{d-1}$, which makes a user's total contribution grow only linearly.
 
-Whether this is a good idea depends on what active users buy, which the weighting ignores (\cref{fig:schematic}). If a heavy buyer spreads purchases across categories, most of their links cross category boundaries and downweighting removes noise; if the same buyer concentrated on one category, downweighting would discard the strongest evidence in the data. We study this tension with three questions:
+Whether this is a good idea depends on what active users buy, which the weighting ignores (\cref{fig:schematic}). If a heavy buyer spreads purchases across categories, most of their links cross category boundaries and downweighting removes noise. If the same buyer concentrated on one category, downweighting would discard the strongest evidence in the data. We ask three questions:
 \begin{enumerate}[label=\textbf{Q\arabic*.},leftmargin=2.6em]
   \item How do activity heterogeneity and the breadth of active users' preferences interact with the choice of projection weights?
   \item When does inverse-activity weighting improve on raw counts and Jaccard similarity?
@@ -55,20 +55,20 @@ Whether this is a good idea depends on what active users buy, which the weightin
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{fig1_schematic}
-  \caption{A toy example. Users $u_1$--$u_4$ buy within a single category; $u_5$ buys six products across all three. (b)~Under counts, every pair created by $u_5$ has full weight and cross-category edges (grey) dominate. (c)~Inverse-activity weighting gives each of $u_5$'s pairs weight $1/5$, and the within-category share of edge weight rises from 52\% to 72\%. If $u_5$ instead bought six products from one category, the same weighting would shrink useful edges.}
+  \caption{A toy example. (a)~Purchases: users $u_1$--$u_4$ buy within a single category; $u_5$ buys six products across all three. (b)~Under counts, every pair created by $u_5$ has full weight and cross-category edges (grey) dominate. (c)~Inverse-activity weighting gives each of $u_5$'s pairs weight $1/5$, and the within-category share of edge weight rises from 52\% to 72\%. If $u_5$ instead bought six products from one category, the same weighting would shrink useful edges.}
   \label{fig:schematic}
 \end{figure}
 
 We answer these questions with a simulation in which product categories are known and expected edge weights can be computed exactly. Making heavy buyers indiscriminate both adds noise and, if the amount of data is held fixed, removes informative purchases, so we use two complementary designs: Design~1 holds total purchases fixed and Design~2 holds the informative purchases fixed. Together they cover 54 conditions and 5{,}400 independent data sets, and all four methods are applied to the same data sets.
 
-\paragraph{Related work.} Our $1/(d-1)$ weight follows \citet{newman2001}. \citet{zhou2007} also discount active users in a resource-allocation projection for recommendation. The SVD baseline is motivated by bipartite spectral co-clustering \citep{dhillon2001} and its extension to directed graphs \citep{rohe2016}, though we do not implement either algorithm exactly.
+\paragraph{Related work.} Besides \citet{newman2001}, \citet{zhou2007} discount active users in a resource-allocation projection for recommendation. The SVD baseline is motivated by bipartite spectral co-clustering \citep{dhillon2001} and its extension to directed graphs \citep{rohe2016}, though we do not implement either algorithm exactly.
 
 % =====================================================================
 \section{Model and methods}
 
 \subsection{A simple purchase model}
 
-Let $B\in\{0,1\}^{n\times p}$ record purchases, with $B_{ui}=1$ if user $u$ bought product $i$. We use $n=1{,}000$ users and $p=300$ products divided into $K=3$ categories of $s=p/K=100$ products. Each user has a preferred category, drawn uniformly at random, and buys $d_u$ distinct products one at a time without replacement. At each draw, a remaining product in the preferred category has weight $r_u\ge 1$ and every other product has weight 1. With $r_u=2$, about half of a user's purchases fall in the preferred category; with $r_u=1$ the user has no preference at all.
+Let $B\in\{0,1\}^{n\times p}$ record purchases, with $B_{ui}=1$ if user $u$ bought product $i$. We use $n=1{,}000$ users and $p=300$ products divided into $K=3$ categories of $s=p/K=100$ products. Each user has a preferred category, drawn uniformly at random, and buys $d_u$ distinct products one at a time without replacement. At each draw, a remaining product in the preferred category has weight $r_u\ge 1$ and every other product has weight 1. With $r_u=2$, about half of a user's purchases fall in the preferred category; with $r_u=1$ the user has no preference at all. Users are generated independently of one another. Within a user, purchases are dependent, because the $d_u$ products are distinct and each draw changes the weights of the remaining products. \Cref{app:generation} gives the full procedure and a worked example.
 
 \subsection{Three product networks}
 
@@ -85,11 +85,11 @@ As a fourth method we skip the projection. We form $M=D_u^{-1/2}BD_p^{-1/2}$, wh
   M^\top M = D_p^{-1/2}\,B^\top D_u^{-1} B\, D_p^{-1/2},
   \label{eq:svd}
 \end{equation}
-this baseline is itself a projection that weights each user by $1/d_u$, close to the $1/(d_u-1)$ of \Wtd. The main differences are that it keeps the diagonal of $M^\top M$ and that users with a single purchase still enter it.
+this baseline is itself a projection that weights each user by $1/d_u$, close to the $1/(d_u-1)$ of \Wtd. The main differences are that it keeps the diagonal of $M^\top M$ and that users with a single purchase still enter it. All four methods are given the true number of categories, $K$ = 3.
 
 \subsection{Expected edge weights and user influence}
 
-Because products within a category are exchangeable, the probability that user $u$ buys a particular pair of distinct products depends only on whether the two products share a category. Writing $C_{uk}$ for the number of products $u$ buys from category $k$,
+Because products within a category are exchangeable and each user's preferred category is uniform and independent of everything else, the probability that user $u$ buys a particular pair of distinct products depends only on whether the two products share a category. Writing $C_{uk}$ for the number of products $u$ buys from category $k$,
 \[
   q^{\text{same}}_u=\frac{\mathbb{E}[C_{uk}(C_{uk}-1)]}{s(s-1)},\qquad
   q^{\text{diff}}_u=\frac{\mathbb{E}[C_{uk}C_{ul}]}{s^2}\quad(k\ne l).
@@ -112,7 +112,7 @@ Turning the most active users into indiscriminate buyers changes two things. It 
 
 \subsection{Design 1: matched total}
 
-We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number of purchases per user, $m\in\{6,12\}$. \emph{Activity heterogeneity} determines how those purchases are spread: equally, or with 20\% of users buying three or more times the mean. Total purchases are identical across heterogeneity levels, so only their concentration changes. \emph{Preference breadth} is either \emph{focused}, where every user has $r_u=r$, or \emph{broad active}, where the 20\% most active users have $r_u=1$ and the rest keep $r_u=r$. Activity is assigned independently of the preferred category. Finally, the \emph{preference strength} $r\in\{2,3,4\}$ sets how strongly focused users favour their category. Crossing the four factors gives 36 conditions.
+We vary four factors (\cref{tab:design}). \emph{Density} sets the mean number of purchases per user, $m\in\{6,12\}$. \emph{Activity heterogeneity} determines how those purchases are spread: equally, or with 20\% of users buying three or more times the mean. Total purchases are identical across heterogeneity levels, so only their concentration changes. \emph{Preference breadth} is either \emph{focused}, where every user has $r_u=r$, or \emph{broad active}, where the 20\% most active users have $r_u=1$ and the rest keep $r_u=r$. Under low heterogeneity, where all users are equally active, these are a random 20\% of users. Activity is assigned independently of the preferred category. Finally, the \emph{preference strength} $r\in\{2,3,4\}$ sets how strongly focused users favor their category. Crossing the four factors gives 36 conditions.
 
 \begin{table}[t]
   \centering
@@ -128,15 +128,15 @@ We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number o
   \end{tabular}
 \end{table}
 
-The settings were fixed after a pilot of 10 data sets per condition. Following our proposal, we required at least two conditions with a median error between 5\% and 40\% for some method; four met it at $r=2$, so we kept the initial design, without regard to which method performed best. We first ran the $r=2$ grid and then the same grid at $r=3$ and $r=4$, the upper value in our proposal, with identical code and fresh seeds.
+The settings were fixed after a pilot with 10 data sets for each of the 12 conditions at $r=2$. Following our proposal, we required at least two conditions with a median error between 5\% and 40\% for some method; four met it at $r=2$, so we kept the initial design, without regard to which method performed best. We first ran the $r=2$ grid and then the same grid at $r=3$ and $r=4$, the upper value in our proposal, with identical code and fresh seeds.
 
 \subsection{Design 2: fixed information}
 
-We fix 1{,}000 informative users in one of two settings ($m=12$, $r=2$ or $m=6$, $r=3$), then add $A=50$ or $200$ users with no category preference who each buy $D$ products, with $D/m\in\{1,2,4,8\}$, plus one baseline with no added users. This gives 18 conditions. Within each replicate the informative purchases are identical across conditions, and the added users and their purchases are nested, so comparisons across conditions isolate the background. Unlike the matched-total design, total purchases grow as background is added. We added this design after the matched-total results at $r=2$ showed that the two effects were confounded.
+We fix 1{,}000 informative users in one of two settings ($m=12$, $r=2$ or $m=6$, $r=3$), then add $A=50$ or $200$ users with no category preference who each buy $D$ products, with $D/m\in\{1,2,4,8\}$, so each added user buys one to eight times as many products as an informative user. Together with a baseline with no added users, this gives nine conditions per setting and 18 in total. Within each replicate the informative purchases are identical across conditions, and the added users and their purchases are nested, so comparisons across conditions isolate the background. Unlike Design~1, total purchases grow as background is added. We added this design after the matched-total results at $r=2$ showed that adding uninformative heavy buyers and removing informative purchases were confounded.
 
 \subsection{Evaluation}
 
-Our primary measure is the \emph{misclustering rate}: the fraction of the 300 products assigned to the wrong category after the best matching of cluster labels to categories. To judge how far a method is from chance, we permute the true labels and recompute the matched error; across all conditions this random-label reference lies between 62.9\% and 63.5\%. All intervals are 95\% intervals for a mean over 100 independent data sets. Method comparisons are paired within data sets and are not adjusted for multiple comparisons.
+Our primary measure is the \emph{misclustering rate}: the fraction of the 300 products assigned to the wrong category after the best matching of cluster labels to categories. To judge how far a method is from chance, we permute the true labels and recompute the matched error, using 20 permutations per data set. We computed this reference for the $r=3$, $r=4$, and Design~2 data sets, where it lies between 62.9\% and 63.5\%; because the band barely moves across these conditions, we also use it as the reference for $r=2$. All intervals are 95\% intervals for a mean over 100 independent data sets. Method comparisons are paired within data sets and are not adjusted for multiple comparisons.
 
 % =====================================================================
 \section{Results}
@@ -147,12 +147,12 @@ Our primary measure is the \emph{misclustering rate}: the fraction of the 300 pr
 
 At $m=6$ the pattern is weaker. At high heterogeneity \Count{} and \Wtd{} coincide (41.3\% and 41.2\%): the 80\% of users with one purchase contribute no pairs, so every contributing user buys 26 products and the two weightings differ by a constant.
 
-When the active users are broad (right column), recovery is poor under medium and high heterogeneity: every method is within about three points of the random-label reference. With equal activity it is better (48.5\% at $m=12$) because the broad users are no more active than anyone else.
+When the active users are broad (right column), recovery is poor under medium and high heterogeneity, where every method is within about three points of the random-label reference. With equal activity it is better (48.5\% at $m=12$) because the broad users are no more active than anyone else.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{fig3_recovery}
-  \caption{Mean misclustering rate at $r=2$. Each point averages 100 data sets; error bars are 95\% intervals and are often smaller than the markers. The grey band marks the random-label reference.}
+  \caption{Mean misclustering rate at $r=2$. Each point averages 100 data sets; error bars are 95\% intervals and are often smaller than the markers. The grey band represents the random-label reference.}
   \label{fig:recovery}
 \end{figure}
 
@@ -161,7 +161,7 @@ When the active users are broad (right column), recovery is poor under medium an
 
 Comparing \Count{} and \Wtd{} on the same data sets isolates the effect of weighting (all 12 paired differences at $r=2$ are shown in \cref{fig:paired}). With focused active users, weighting costs 16.7 percentage points at $m=12$ and medium heterogeneity (95\% interval 15.2 to 18.2) and 35.6 points at high heterogeneity (34.1 to 37.0). Its only clear gains occur with broad active users at medium heterogeneity, 2.4 points at $m=12$ (1.8 to 3.0) and 0.7 points at $m=6$, and both leave the error close to chance. Under equal activity the two networks are proportional, so their normalized matrices are identical and the small differences come from $k$-means initialization.
 
-Why does weighting not rescue the broad-active conditions? At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, which is the confound Design~2 removes (\cref{sec:fixed}).
+Weighting does not help in the broad-active conditions, for two different reasons. At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, which is the confound Design~2 removes (\cref{sec:fixed}).
 
 \subsection{Stronger preferences}
 
@@ -212,19 +212,28 @@ Why does the \SVD{} fail at $m=6$? Users with one purchase contribute nothing to
 \end{table}
 
 % =====================================================================
-\section{Discussion}
+\section{Conclusion}
 
-\textbf{Q1.} Activity heterogeneity amplifies whatever active users do: concentrated focused activity strengthens the signal, while concentrated broad activity adds noise and removes informative purchases.
+Activity is not a proxy for noise. When active users are focused, they carry
+most of the signal, and inverse-activity weighting increases the error by up
+to 36 percentage points at $r=2$. When active users buy at random, weighting
+helps once the other users carry enough signal: by 28 and 52 points at $r=3$
+and $r=4$, and by up to 40 points when informative purchases are held fixed.
+The normalized bipartite SVD behaves much like the weighted projection, as
+\eqref{eq:svd} predicts, and offers no general advantage.
 
-\textbf{Q2.} Inverse-activity weighting helps only when high activity marks uninformative users. With focused active users it is costly, by up to 36 points at $r=2$. With broad active users it helps once the remaining users carry enough signal: by 28 and 52 points at $r=3$ and $r=4$, and by up to 40 points when informative purchases are held fixed, while raw counts collapse to chance.
+In practice, the activity distribution is observable. When activity is nearly
+even, \Count{} and \Wtd{} give essentially the same partition. When a few
+users dominate, comparing the two partitions indicates which case applies.
 
-\textbf{Q3.} The normalized bipartite SVD behaves much like the weighted projection, as \eqref{eq:svd} predicts, offers no general advantage, and is hurt by single-purchase users.
+\section{Limitations and future work}
 
-\paragraph{In practice.} Whether heavy buyers are informative is not known in advance, but the activity distribution is observable. When activity is nearly even, \Count{} and \Wtd{} give essentially the same partition, so the choice does not matter. When a few users dominate, comparing the two partitions, or checking whether the heavy buyers concentrate in one cluster, indicates which regime applies.
-
-\paragraph{Limitations.} Our model is deliberately simple: balanced categories, equally popular products within a category, single-category preferences, and known $K$. Projected edges are dependent, so we do not use detection thresholds for independent-edge models. The fixed-information design was added after the matched-total results at $r=2$ revealed the confound. We did not study $r<2$ or real purchase data.
-
-\paragraph{Conclusion.} Activity is not a proxy for noise: downweighting heavy buyers helps when they buy at random and hurts when they are focused.
+Our model assumes balanced categories, equally popular products, single-category
+preferences, and known $K$; degree-corrected or mixed-membership models and
+real purchase data are natural next steps. Projected edges are dependent, so
+we do not compare with detection thresholds for independent-edge models. The
+fixed-information design was added after the matched-total results at $r=2$
+revealed the confound, and we did not study $r<2$.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
