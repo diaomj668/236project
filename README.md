@@ -4,7 +4,7 @@ This project implements the main simulation design in the proposal. This directo
 
 ## Project materials
 
-- [Full report (PDF)](deliverables/report.pdf)
+- [Full report (PDF)](deliverables/236project.pdf)
 - [Report source (LaTeX)](paper/report.tex)
 - [Results summary](RESULTS.md)
 - [Original proposal](236%20proposal.pdf), preserved without content changes
