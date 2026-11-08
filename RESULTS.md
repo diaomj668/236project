@@ -97,7 +97,7 @@ Removing single-purchase users makes SVD match Count in both mean-6 cells. The m
 ## Validation
 
 - All unit tests passed, including checks of theoretical formulas against simulation.
-- Main-experiment dataset counts, replicate counts, method pairing, purchase means, and both total-weight identities passed integrity checks.
+- Design 1 (r=2) dataset counts, replicate counts, method pairing, purchase means, and both total-weight identities passed integrity checks.
 - Regenerating a dataset from its recorded seed reproduced method metrics and theoretical values.
 - Resuming the pilot did not duplicate completed records.
 - Confidence intervals treat datasets as independent units. Paired differences are calculated by subtracting method errors within the same dataset before aggregation.

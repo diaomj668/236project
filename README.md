@@ -34,7 +34,7 @@ The completed pilot and main results are included. Rebuild summaries and figures
 python run_experiments.py --stage main --analyze-only
 ```
 
-To reproduce the main experiment using its recorded seeds in a new directory:
+To reproduce Design 1 at r=2 (stage `main`) using its recorded seeds in a new directory:
 
 ```bash
 python run_experiments.py --stage main --frozen-config frozen_config.json \
@@ -45,7 +45,7 @@ python run_experiments.py --stage main --frozen-config frozen_config.json \
 
 ## Raw simulated data
 
-`data/example/` contains a reconstructed recorded main-experiment dataset with 1,000 users, 300 products, 12,000 purchases, focused preferences, and high activity heterogeneity. It is replicate 0 of that condition, with dataset seed 2344398831. It is not an additional independent replicate.
+`data/example/` contains a reconstructed recorded dataset from Design 1 at r=2, with 1,000 users, 300 products, 12,000 purchases, focused preferences, and high activity heterogeneity. It is replicate 0 of that condition, with dataset seed 2344398831. It is not an additional independent replicate.
 
 `purchase_matrix.csv` has user IDs in its first column and 300 binary product columns. `products.csv` supplies true category labels. `users.csv` records activity, preferred category, and preference ratio. `purchases.npz` provides the same arrays compactly, and `metadata.json` identifies the experimental condition. All identifiers and labels start at zero.
 
@@ -65,12 +65,12 @@ The full 1,200 purchase matrices are not stored individually; their seeds and al
 - `figures.py`: recovery curves, theoretical versus simulated contrasts, user influence, paired differences, and an illustrative network.
 - `tests/test_model.py`: tests for matched means, purchase counts, weighting identities, isolated products, label permutations, theoretical moments, and recovery of a known partition.
 - `frozen_config.json`: the initial parameter settings retained after the pilot passed its checks.
-- `outputs/pilot/` and `outputs/main/`: pilot and main experiment records, including results for each dataset and figures.
-- `RESULTS.md`: a summary of the completed main experiment and validation checks.
+- `outputs/pilot/` and `outputs/main/`: pilot and Design 1 (r=2) records, including results for each dataset and figures.
+- `RESULTS.md`: a summary of all completed runs (Design 1 at r=2, 3, and 4; Design 2; the SVD ablation) and validation checks.
 
 ## Design and implementation
 
-The main design uses n=1,000 users, p=300 products, K=3 categories, mean purchase counts of 6 and 12, three activity distributions (`low`, `medium`, and `high`), two preference settings (`focused` and `broad_active`), and three preference strengths r=2, 3, and 4. This gives 12 conditions per preference strength and 36 in total, each with 100 datasets. The r=2 grid was run first after the pilot; the r=3 and r=4 grids followed with identical code and fresh seeds.
+Design 1 (matched total) uses n=1,000 users, p=300 products, K=3 categories, mean purchase counts of 6 and 12, three activity distributions (`low`, `medium`, and `high`), two preference settings (`focused` and `broad_active`), and three preference strengths r=2, 3, and 4. This gives 12 conditions per preference strength and 36 in total, each with 100 datasets. The r=2 grid was run first after the pilot; the r=3 and r=4 grids followed with identical code and fresh seeds.
 
 Under medium heterogeneity, 80% of users purchase mean/2 products and 20% purchase 3 times the mean. Under high heterogeneity, 80% purchase mean/6 products and 20% purchase 13 times the mean divided by 3. Means are exactly matched across activity distributions. Product categories have equal sizes. Each user's preferred category is drawn independently and uniformly, giving approximately balanced preference groups. Activity is assigned independently of preferred category. Ties in selecting the most active 20% are broken randomly. Under `broad_active`, these users have r=1.
 
@@ -80,7 +80,7 @@ All three projections retain their weighted edges without thresholding and set t
 
 Products with zero strength or zero embedding rows receive label -1. Optimal label matching uses assigned products, but the misclustering rate divides by the total number of products, so unassigned products count as errors. Adjusted Rand index (ARI) is calculated among assigned products, and assignment coverage is reported separately. If fewer than K products have valid embeddings, all products are conservatively left unassigned.
 
-All four methods use the same B within each dataset. Data generation and each method's k-means use independent random substreams. The default root seeds for pilot, calibration, and main experiments are 23601, 23602, and 23603, respectively. Dataset and k-means seeds are recorded. The manifest and dataset seed allow reconstruction without storing every B matrix.
+All four methods use the same B within each dataset. Data generation and each method's k-means use independent random substreams. The default root seeds for the pilot, calibration, and Design 1 at r=2 (stage `main`) are 23601, 23602, and 23603, respectively. Dataset and k-means seeds are recorded. The manifest and dataset seed allow reconstruction without storing every B matrix.
 
 The theory module uses a one-dimensional dynamic program for the number of selected products in the preferred category. It computes category second moments for the actual sequential sampling scheme. Conditional exchangeability of other products then gives within-category and between-category pair inclusion probabilities. The reported theoretical values are **unconditional expectations** over independently and uniformly drawn preferred categories. Random variation in preference-group sizes contributes to dataset variability. Count and Weighted expectations are exact up to numerical precision. Jaccard uses an explicitly labeled ratio-of-expectations approximation, not an exact expression for E[J]. Tests check the uniform-sampling formula at r=1 and compare general-r theoretical values against simulation.
 
@@ -106,20 +106,20 @@ python run_experiments.py --stage pilot --r 1.25 2 4 --output outputs/pilot_r --
 # Bounded calibration grid: purchase means 3, 6, 12, 24 and r=1.25, 2, 4
 python run_experiments.py --stage calibrate --workers 4
 
-# Rebuild summaries and figures from existing main-experiment CSV files
+# Rebuild summaries and figures from existing Design 1 (r=2) CSV files
 python run_experiments.py --stage main --analyze-only
 
 # Check the complete pipeline with 12 datasets
 python run_experiments.py --stage smoke --workers 2
 ```
 
-At mean=3, the high-heterogeneity calibration setting cannot use mean/6 as an integer purchase count. It instead assigns one purchase to 80% of users and eleven purchases to 20%, preserving mean=3 exactly. The main experiment follows the proposal's table. Calibration does not automatically select the final design: freeze settings based on difficulty and feasibility, rather than the largest method advantage. A reviewed manifest can be supplied through `--frozen-config`. The optional unequal-product-popularity extension is not implemented; the main design retains equal sampling weights within each category.
+At mean=3, the high-heterogeneity calibration setting cannot use mean/6 as an integer purchase count. It instead assigns one purchase to 80% of users and eleven purchases to 20%, preserving mean=3 exactly. Design 1 follows the proposal's table. Calibration does not automatically select the final design: freeze settings based on difficulty and feasibility, rather than the largest method advantage. A reviewed manifest can be supplied through `--frozen-config`. The optional unequal-product-popularity extension is not implemented; both designs retain equal sampling weights within each category.
 
 Existing output directories require `--resume`, with an exactly matching configuration. Use a new `--output` directory when changing parameters. Changing `--workers` does not change datasets or k-means seeds. Algorithm runtimes include projection construction or matrix decomposition and clustering, but exclude diagnostics, theory, and generation. Shared machine load affects timing comparisons.
 
 ## Report and demonstration webpage
 
-The report is `deliverables/report.pdf` (12pt, eight main-text pages plus references and appendices). Its LaTeX source is in `paper/`: `report.tex`, `references.bib`, `make_figures.py` (all report figures, written as vector PDFs to `paper/figures/`), and `make_tables.py` (appendix tables in `paper/tables/`). Both scripts read only the saved experiment outputs. To rebuild:
+The report is `deliverables/report.pdf` (12pt; main text, references, and Appendices A–E). Its LaTeX source is in `paper/`: `report.tex`, `references.bib`, `make_figures.py` (all report figures, written as vector PDFs to `paper/figures/`), and `make_tables.py` (appendix tables in `paper/tables/`). Both scripts read only the saved experiment outputs. To rebuild:
 
 ```bash
 cd paper

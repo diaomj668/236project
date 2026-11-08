@@ -2,7 +2,7 @@
 
 All project materials are in English. The original proposal is preserved unchanged.
 
-- `report.pdf`: 12pt LaTeX report with eight main-text pages, references, and appendices (theory, complete results, reproducibility). The r=2, 3, and 4 grids are reported together; the report presents two complementary designs (matched total and fixed information) and states that r=3 and r=4 were run after r=2 and that the fixed-information design was added after the matched-total results. Source: `paper/report.tex`.
+- `report.pdf`: 12pt LaTeX report: main text, references, and Appendices A–E (data generation, exact category moments, theory–simulation agreement, reproducibility, complete results). The r=2, 3, and 4 grids are reported together; the report presents two complementary designs (matched total and fixed information) and states that r=3 and r=4 were run after r=2 and that the fixed-information design was added after the matched-total results. Source: `paper/report.tex`.
 - `website.zip`: portable interactive webpage and all download assets.
 - `reproducibility.zip`: code, tests, dependency versions, recorded seeds, result tables, figures, and one reconstructed raw dataset.
 - `webpage-preview.png`: screenshot of the previously verified interactive results view.
