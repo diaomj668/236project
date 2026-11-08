@@ -59,7 +59,7 @@ Whether this is a good idea depends on what active users buy, which the weightin
   \label{fig:schematic}
 \end{figure}
 
-We answer these questions with a simulation in which product categories are known and expected edge weights can be computed exactly. Making heavy buyers indiscriminate both adds noise and, if the amount of data is held fixed, removes informative purchases, so we use two complementary designs: one holds total purchases fixed and one holds the informative purchases fixed. All methods are applied to the same data sets.
+We answer these questions with a simulation in which product categories are known and expected edge weights can be computed exactly. Making heavy buyers indiscriminate both adds noise and, if the amount of data is held fixed, removes informative purchases, so we use two complementary designs: Design~1 holds total purchases fixed and Design~2 holds the informative purchases fixed. Together they cover 54 conditions and 5{,}400 independent data sets, and all four methods are applied to the same data sets.
 
 \paragraph{Related work.} Our $1/(d-1)$ weight follows \citet{newman2001}. \citet{zhou2007} also discount active users in a resource-allocation projection for recommendation. The SVD baseline is motivated by bipartite spectral co-clustering \citep{dhillon2001} and its extension to directed graphs \citep{rohe2016}, though we do not implement either algorithm exactly.
 
@@ -108,9 +108,9 @@ Two facts follow directly. A user with $r_u=1$ has $q^{\text{same}}_u=q^{\text{d
 % =====================================================================
 \section{Experimental design}
 
-Turning the most active users into indiscriminate buyers changes two things. It adds heavy buyers whose pairs carry no category information, and, if the amount of data is held fixed, it takes purchases away from the users who do carry information. No single design can hold both total purchases and informative purchases fixed while doing so, so we use two complementary designs. The \emph{matched-total} design fixes the total number of purchases and asks whether concentrating a fixed amount of activity in a few users helps or hurts each method. The \emph{fixed-information} design fixes the informative users' purchases and adds preference-free heavy buyers on top, which isolates the effect of background noise. Every condition in both designs has 100 independent data sets.
+Turning the most active users into indiscriminate buyers changes two things. It adds heavy buyers whose pairs carry no category information, and, if the amount of data is held fixed, it takes purchases away from the users who do carry information. No single design can hold both total purchases and informative purchases fixed while doing so, so we use two complementary designs. Design~1, the \emph{matched-total} design, fixes the total number of purchases and asks whether concentrating a fixed amount of activity in a few users helps or hurts each method. Design~2, the \emph{fixed-information} design, fixes the informative users' purchases and adds preference-free heavy buyers on top, which isolates the effect of background noise. Every condition in both designs has 100 independent data sets: 36 conditions in Design~1 and 18 in Design~2, or 5{,}400 data sets in total. \Cref{app:generation} describes the generator step by step.
 
-\subsection{Matched-total design}
+\subsection{Design 1: matched total}
 
 We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number of purchases per user, $m\in\{6,12\}$. \emph{Activity heterogeneity} determines how those purchases are spread: equally, or with 20\% of users buying three or more times the mean. Total purchases are identical across heterogeneity levels, so only their concentration changes. \emph{Preference breadth} is either \emph{focused}, where every user has $r_u=r$, or \emph{broad active}, where the 20\% most active users have $r_u=1$ and the rest keep $r_u=r$. Activity is assigned independently of the preferred category. Finally, the \emph{preference strength} $r\in\{2,3,4\}$ sets how strongly focused users favour their category. Crossing the four factors gives 36 conditions.
 
@@ -130,7 +130,7 @@ We vary three factors (\cref{tab:design}). \emph{Density} sets the mean number o
 
 The settings were fixed after a pilot of 10 data sets per condition. Following our proposal, we required at least two conditions with a median error between 5\% and 40\% for some method; four met it at $r=2$, so we kept the initial design, without regard to which method performed best. We first ran the $r=2$ grid and then the same grid at $r=3$ and $r=4$, the upper value in our proposal, with identical code and fresh seeds.
 
-\subsection{Fixed-information design}
+\subsection{Design 2: fixed information}
 
 We fix 1{,}000 informative users in one of two settings ($m=12$, $r=2$ or $m=6$, $r=3$), then add $A=50$ or $200$ users with no category preference who each buy $D$ products, with $D/m\in\{1,2,4,8\}$, plus one baseline with no added users. This gives 18 conditions. Within each replicate the informative purchases are identical across conditions, and the added users and their purchases are nested, so comparisons across conditions isolate the background. Unlike the matched-total design, total purchases grow as background is added. We added this design after the matched-total results at $r=2$ showed that the two effects were confounded.
 
@@ -141,7 +141,7 @@ Our primary measure is the \emph{misclustering rate}: the fraction of the 300 pr
 % =====================================================================
 \section{Results}
 
-\subsection{Matched-total design at $r=2$}
+\subsection{Design 1 at $r=2$}
 
 \Cref{fig:recovery} summarizes the results at $r=2$. When active users are focused (left column), concentrating activity helps \Count{} and \Jac{} but hurts \Wtd{} and \SVD. At $m=12$, \Count{} error falls from 35.5\% under equal activity to 22.4\% and then 13.0\% as activity becomes more concentrated, while \Wtd{} rises from 35.3\% to 39.1\% and 48.6\%. Heavy buyers who stay within their category are the most informative users in the data, and the count projection lets them speak loudest.
 
@@ -157,10 +157,11 @@ When the active users are broad (right column), recovery is poor under medium an
 \end{figure}
 
 \subsection{The paired effect of weighting}
+\label{sec:paired}
 
 Comparing \Count{} and \Wtd{} on the same data sets isolates the effect of weighting (all 12 paired differences at $r=2$ are shown in \cref{fig:paired}). With focused active users, weighting costs 16.7 percentage points at $m=12$ and medium heterogeneity (95\% interval 15.2 to 18.2) and 35.6 points at high heterogeneity (34.1 to 37.0). Its only clear gains occur with broad active users at medium heterogeneity, 2.4 points at $m=12$ (1.8 to 3.0) and 0.7 points at $m=6$, and both leave the error close to chance. Under equal activity the two networks are proportional, so their normalized matrices are identical and the small differences come from $k$-means initialization.
 
-Why does weighting not rescue the broad-active conditions? At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, which is the confound the fixed-information design removes (\cref{sec:fixed}).
+Why does weighting not rescue the broad-active conditions? At $m=6$ and high heterogeneity, the 800 users with preferences buy one product each and create no pairs, while the 200 heavy buyers have no preference. The expected block contrast is exactly zero under every projection, and no reweighting can create signal that is not there. At $m=12$, the focused users buy two products each and the broad users 52, so a broad user contributes 1{,}326 pairs under \Count{} and 26 under \Wtd, against one for a focused user. Weighting lowers the broad users' share of pair weight from 99.7\% to 86.7\%, but they still dominate. Because total purchases are matched, making active users broad also takes purchases away from informative users, which is the confound Design~2 removes (\cref{sec:fixed}).
 
 \subsection{Stronger preferences}
 
@@ -173,7 +174,7 @@ Raising the preference strength changes the picture (\cref{fig:strength}; comple
   \label{fig:strength}
 \end{figure}
 
-\subsection{Adding background to fixed informative purchases}
+\subsection{Design 2: adding background to fixed informative purchases}
 \label{sec:fixed}
 
 Holding the informative purchases fixed separates the two effects (\cref{fig:separation}). In the first setting, 50 background users buying $4m=48$ products each push \Count{} from 35.5\% to 59.1\%, whereas \Wtd{} stays at 36.0\%; the paired difference is 23.0 points (21.4 to 24.7). In the second setting the difference at $D=4m$ is 35.2 points (33.9 to 36.5). When $D=m$ the background users are no more active than anyone else, weighting cannot single them out, and the two methods give identical results. Weighting does not make recovery immune to background: with 200 background users, \Wtd{} also loses a few points.
@@ -219,6 +220,8 @@ Why does the \SVD{} fail at $m=6$? Users with one purchase contribute nothing to
 
 \textbf{Q3.} The normalized bipartite SVD behaves much like the weighted projection, as \eqref{eq:svd} predicts, offers no general advantage, and is hurt by single-purchase users.
 
+\paragraph{In practice.} Whether heavy buyers are informative is not known in advance, but the activity distribution is observable. When activity is nearly even, \Count{} and \Wtd{} give essentially the same partition, so the choice does not matter. When a few users dominate, comparing the two partitions, or checking whether the heavy buyers concentrate in one cluster, indicates which regime applies.
+
 \paragraph{Limitations.} Our model is deliberately simple: balanced categories, equally popular products within a category, single-category preferences, and known $K$. Projected edges are dependent, so we do not use detection thresholds for independent-edge models. The fixed-information design was added after the matched-total results at $r=2$ revealed the confound. We did not study $r<2$ or real purchase data.
 
 \paragraph{Conclusion.} Activity is not a proxy for noise: downweighting heavy buyers helps when they buy at random and hurts when they are focused.
@@ -233,6 +236,117 @@ Why does the \SVD{} fail at $m=6$? Users with one purchase contribute nothing to
 \renewcommand{\thetable}{A\arabic{table}}
 \setcounter{figure}{0}
 \setcounter{table}{0}
+
+\section{Data generation in detail}
+\label{app:generation}
+Every data set in the study is one binary purchase matrix $B\in\{0,1\}^{n\times p}$ together with the true category of each product. This section describes, step by step, how such a matrix is produced in each design, which quantities are fixed and which are random, and how the random seeds are organized.
+
+\subsection{Notation and fixed quantities}
+
+\begin{itemize}
+  \item $p=300$ products in $K=3$ categories of $s=p/K=100$ products. The categories are contiguous blocks: products $0$--$99$ are category 0, $100$--$199$ category 1, and $200$--$299$ category 2. The true label of product $i$ is $z_i$. These labels are the same in every data set and are never shown to the methods.
+  \item $n$ users. Design~1 uses $n=1{,}000$. Design~2 uses $1{,}000$ informative users plus $A\in\{0,50,200\}$ background users.
+  \item For user $u$: the purchase count $d_u$ (the number of \emph{distinct} products bought), the preferred category $g_u\in\{0,1,2\}$, and the preference ratio $r_u\ge 1$.
+  \item $B_{ui}=1$ if user $u$ bought product $i$. A user buys a product at most once, so the row sums of $B$ are exactly $d_u$.
+\end{itemize}
+
+\subsection{Design 1 (matched total): one data set in six steps}
+
+A Design~1 condition is defined by four settings: the mean purchase count $m\in\{6,12\}$, the activity heterogeneity (low, medium or high), the preference setting (all users focused, or active users broad), and the preference strength $r\in\{2,3,4\}$. Given these, one data set is generated as follows.
+
+\paragraph{Step 1: purchase counts.} The vector of purchase counts is fixed by the condition; only its assignment to users is random. Under low heterogeneity all users buy $m$ products. Under medium and high heterogeneity, 80\% of users buy a small count $\ell$ and 20\% buy a large count $5m-4\ell$, with $\ell=m/2$ for medium and $\ell=\max(1,m/6)$ for high heterogeneity. This gives the counts in \cref{tab:gen-counts}. Because $(4\ell+(5m-4\ell))/5=m$, the mean is exactly $m$ in every column, and the total number of purchases is exactly $nm$ ($6{,}000$ or $12{,}000$). The 1{,}000 counts are then randomly permuted across users.
+
+\begin{table}[ht]
+  \centering
+  \caption{Purchase counts in Design~1. Total purchases are fixed within each value of $m$. The last column is the total number of product pairs, $\sum_u d_u(d_u-1)/2$, which is the total edge weight of the \Count{} projection.}
+  \label{tab:gen-counts}
+  \small
+  \begin{tabular}{@{}llcr@{}}
+    \toprule
+    $m$ & Heterogeneity & Purchase counts & Total pairs \\
+    \midrule
+    6  & low    & all 1{,}000 users buy 6        & 15{,}000 \\
+    6  & medium & 800 buy 3, 200 buy 18          & 33{,}000 \\
+    6  & high   & 800 buy 1, 200 buy 26          & 65{,}000 \\
+    \midrule
+    12 & low    & all 1{,}000 users buy 12       & 66{,}000 \\
+    12 & medium & 800 buy 6, 200 buy 36          & 138{,}000 \\
+    12 & high   & 800 buy 2, 200 buy 52          & 266{,}000 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The same total number of purchases therefore produces very different numbers of product pairs: at $m=12$, concentrating the purchases in 20\% of users quadruples the total \Count{} weight, and almost all of the extra weight comes from the heavy buyers.
+
+\paragraph{Step 2: preferred categories.} Each user's preferred category $g_u$ is drawn independently and uniformly from $\{0,1,2\}$. It is drawn independently of $d_u$, so heavy and light buyers are equally likely to prefer each category. The three preference groups have about 333 users each, but their exact sizes vary from data set to data set; this variation is part of the Monte Carlo variability.
+
+\paragraph{Step 3: the active users.} The ``active'' users are the 20\% (200 users) with the largest purchase counts. Ties are broken by an independent uniform random number for each user. Under medium and high heterogeneity, exactly 200 users have the large count, so the active set is simply those users. Under low heterogeneity all users are tied, so the active set is a uniformly random 20\% of equally active users. This provides a control in which the broad users are no more active than anyone else.
+
+\paragraph{Step 4: preference ratios.} Under ``all users focused'', every user has $r_u=r$. Under ``active users broad'', the 200 active users have $r_u=1$, meaning no preference at all, and the remaining 800 users keep $r_u=r$.
+
+\paragraph{Step 5: purchases.} Each user's $d_u$ distinct products are drawn one at a time without replacement. Every product $i$ has a fixed weight
+\[
+  w_{ui}=\begin{cases} r_u & \text{if } z_i=g_u,\\ 1 & \text{otherwise,}\end{cases}
+\]
+and at each draw a not-yet-purchased product is chosen with probability proportional to its weight among the products still available. The implementation is NumPy's \texttt{choice(p, size=d\_u, replace=False, p=w\_u/sum(w\_u))}, which performs exactly this successive sampling. It is neither independent Bernoulli sampling (each product bought independently) nor Fisher's noncentral hypergeometric distribution.
+
+For the first draw, the probability of landing in the preferred category is
+\[
+  \frac{r\,s}{r\,s+(p-s)}=\frac{r}{r+K-1},
+\]
+which is $1/3$ for $r=1$, $1/2$ for $r=2$, $3/5$ for $r=3$, and $2/3$ for $r=4$. Later draws deplete the preferred category slightly faster than the others, so the expected share of preferred products decreases a little with $d_u$ (\cref{tab:gen-share}). The exact distribution of the preferred count is computed by the dynamic program in \cref{app:recurrence}.
+
+\begin{table}[ht]
+  \centering
+  \caption{Expected share of a user's purchases that fall in the preferred category, computed exactly with the recurrence in \cref{app:recurrence}.}
+  \label{tab:gen-share}
+  \small
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    & $d=1$ & $d=2$ & $d=6$ & $d=12$ & $d=26$ & $d=52$ \\
+    \midrule
+    $r=1$ & 0.333 & 0.333 & 0.333 & 0.333 & 0.333 & 0.333 \\
+    $r=2$ & 0.500 & 0.500 & 0.498 & 0.496 & 0.492 & 0.483 \\
+    $r=3$ & 0.600 & 0.600 & 0.598 & 0.595 & 0.587 & 0.573 \\
+    $r=4$ & 0.667 & 0.666 & 0.664 & 0.660 & 0.652 & 0.634 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Step 6: output and checks.} The generator returns $B$, the true labels $z$, the counts $d$, the preferred categories $g$, the active indicator, and the ratios $r_u$. It checks that every row of $B$ sums to $d_u$. The four methods are then applied to the same $B$; none of them sees $z$, $g$ or $r_u$, and all of them are given the true $K=3$.
+
+\paragraph{A worked example.} Take $m=12$, high heterogeneity, active users broad, and $r=4$. After Step~1, 800 users buy 2 products and 200 buy 52. The 200 users buying 52 are the active users, and they get $r_u=1$, so each of them buys a uniformly random set of 52 products: about $52/3\approx17$ per category, carrying no category information. Each of the other 800 users picks two products, each landing in the preferred category with probability about $2/3$. A broad user contributes $52\cdot51/2=1{,}326$ product pairs to the \Count{} projection; a focused user contributes one. This is why this condition stays near chance for every method (\cref{sec:paired}).
+
+\paragraph{The 36 conditions.} Crossing $m\in\{6,12\}$, three heterogeneity levels, two preference settings and $r\in\{2,3,4\}$ gives 36 conditions. Each condition has 100 independent data sets, so Design~1 has 3{,}600 data sets. The pilot used the same generator with 10 data sets for each of the 12 conditions at $r=2$.
+
+\subsection{Design 2 (fixed information): informative users plus background}
+
+Design~2 keeps the informative purchases fixed and adds preference-free heavy buyers on top. A replicate is generated once and then reused for all nine conditions of its setting.
+
+\paragraph{Step 1: informative users.} Generate 1{,}000 users with the Design~1 generator under low heterogeneity and all users focused: every user buys exactly $m$ products with ratio $r$. There are two settings, $(m,r)=(12,2)$ and $(m,r)=(6,3)$. This informative matrix is generated once per replicate and is never modified; a SHA-256 hash of it is stored with every result to confirm that it is identical across conditions.
+
+\paragraph{Step 2: a pool of background purchases.} Generate a pool of 200 potential background users. For each, draw a uniformly random ordering of all 300 products and keep the first $8m$ products of the ordering. This is uniform sampling without replacement, the same as $r_u=1$ in Step~5 above.
+
+\paragraph{Step 3: conditions by nesting.} A condition with $A$ background users who each buy $D$ products takes the first $A$ users of the pool and, for each, the first $D$ products of their ordering, and appends these $A$ rows below the informative matrix. The conditions are $A\in\{50,200\}$ crossed with $D/m\in\{1,2,4,8\}$, plus one baseline with $A=0$, giving nine conditions per setting and 18 in total, each with 100 replicates (1{,}800 data sets). Because of the nesting, a condition with more background users or more purchases per background user contains every background purchase of the smaller condition. Differences between conditions within a replicate are therefore caused only by the added background.
+
+\paragraph{How much weight the background carries.} Unlike Design~1, total purchases grow with the background: a data set has $1{,}000\,m+AD$ purchases. The informative users contribute $1{,}000\,m(m-1)/2$ pairs to \Count{} and $1{,}000\,m/2$ total weight to \Wtd; the background contributes $AD(D-1)/2$ and $AD/2$. For example, with $m=12$, $A=50$ and $D=48$, the background supplies 56{,}400 \Count{} pairs against 66{,}000 informative pairs, but only 1{,}200 units of \Wtd{} weight against 6{,}000. When $D=m$, every user buys the same number of products, so the two weightings differ by a constant factor and give identical normalized networks.
+
+\subsection{Random seeds}
+
+All randomness comes from NumPy generators seeded through \texttt{SeedSequence}, so every data set can be regenerated exactly from its recorded seed without storing $B$.
+
+\begin{itemize}
+  \item \textbf{Design 1 at $r=2$ and the pilot.} A root seed (23603 for $r=2$, 23601 for the pilot) is spawned into one child seed per data set. Each data set seed is spawned again into five streams: one generates the data, and the other four give the $k$-means seeds of the four methods.
+  \item \textbf{Design 1 at $r=3$ and $r=4$.} The data seed is derived from (root, condition index, replicate, 0) and one $k$-means seed shared by all four methods from (root, condition index, replicate, 1), with roots 23604 and 23607.
+  \item \textbf{Design 2.} The informative matrix, the background pool, and the shared $k$-means seed use separate streams derived from (23605, setting, replicate) with final index 0, 1 and 2. The same $k$-means seed is used for all methods and all conditions within a replicate.
+  \item \textbf{Random-label reference.} The 20 label permutations per data set use the separate root 23606.
+\end{itemize}
+
+Because data generation and clustering use separate streams, changing a method or the number of parallel workers never changes the purchase matrices.
+
+\subsection{What the generator deliberately leaves out}
+
+The model is simple on purpose, so that expected edge weights can be computed exactly. Categories have equal sizes, and all products within a category are equally popular, which is why \Jac{} has nothing to correct and tracks \Count. Each user prefers a single category, buys each product at most once, and has a purchase count that is independent of the preferred category. There is no time dimension, no repeat purchase, and no product attribute beyond its category. The number of categories $K=3$ is known to every method. Results should be read as statements about this controlled model, not about real purchase data.
 
 \section{Exact category moments}
 \label{app:recurrence}
