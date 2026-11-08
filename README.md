@@ -1,10 +1,12 @@
-# STAT 236: User Activity and Product Community Recovery
+# From Purchases to Communities: How User Activity Shapes Product Networks
 
-This project implements the main simulation design in the proposal. This directory contains the source code, experiment records, results, and reproducibility instructions.
+STAT 236 group project (Fall 2026): Tong Zhou, Sia Xie, Yilin Jiang, Mingjiao Diao.
+
+We ask when down-weighting very active buyers helps recover product categories from a co-purchase network. In a simulation with known categories, we compare four methods (Count, Jaccard, inverse-activity Weighted, and a normalized bipartite SVD) under two designs. Design 1 holds total purchases fixed (36 conditions at r=2, 3, 4); Design 2 holds the informative users' purchases fixed and adds preference-free heavy buyers (18 conditions). Every condition has 100 datasets, 5,400 in total, and all four methods run on the same datasets. This repository contains the code, experiment records, results, report, webpage, and reproducibility instructions.
 
 ## Project materials
 
-- [Full report (PDF)](deliverables/236project.pdf)
+- [Full report (PDF)](deliverables/report.pdf)
 - [Report source (LaTeX)](paper/report.tex)
 - [Results summary](RESULTS.md)
 - [Original proposal](236%20proposal.pdf), preserved without content changes
@@ -12,7 +14,7 @@ This project implements the main simulation design in the proposal. This directo
 - [Code and result download](deliverables/reproducibility.zip)
 - [Example raw purchase matrix](data/example/purchase_matrix.csv), [user information](data/example/users.csv), and [true product categories](data/example/products.csv)
 
-The repository is public with the owner's authorization. The demonstration webpage is published through GitHub Pages at **https://diaomj668.github.io/236project/**. It includes interactive results and downloadable report, code, and experiment tables.
+The demonstration webpage is published through GitHub Pages at **https://diaomj668.github.io/236project/**. It includes interactive results and downloadable report, code, and experiment tables.
 
 ## Quick start
 
@@ -28,7 +30,7 @@ python -m unittest discover -s tests -v
 python scripts/validate_project.py
 ```
 
-The completed pilot and main results are included. Rebuild summaries and figures without running new simulations:
+Completed results are included for the pilot, Design 1 at r=2, 3, and 4, Design 2, and the SVD ablation. Rebuild the r=2 summaries and figures without running new simulations:
 
 ```bash
 python run_experiments.py --stage main --analyze-only
@@ -56,7 +58,7 @@ python scripts/export_dataset.py
 python scripts/export_dataset.py --dataset-seed 2344398831 --output data/reconstructed
 ```
 
-The full 1,200 purchase matrices are not stored individually; their seeds and all analysis results are included.
+The 5,400 study purchase matrices are not stored individually; their seeds and all analysis results are included, so any of them can be regenerated.
 
 ## Files
 
@@ -65,7 +67,11 @@ The full 1,200 purchase matrices are not stored individually; their seeds and al
 - `figures.py`: recovery curves, theoretical versus simulated contrasts, user influence, paired differences, and an illustrative network.
 - `tests/test_model.py`: tests for matched means, purchase counts, weighting identities, isolated products, label permutations, theoretical moments, and recovery of a known partition.
 - `frozen_config.json`: the initial parameter settings retained after the pilot passed its checks.
+- `supplement.py` and `supplement_figures.py`: Design 1 at r=3, Design 2, the random-label reference, and their figures.
+- `scripts/`: the r=4 grid, SVD ablation, user-influence shares, dataset export, website and deliverable builders, and validation scripts.
 - `outputs/pilot/` and `outputs/main/`: pilot and Design 1 (r=2) records, including results for each dataset and figures.
+- `outputs/supplement/`: Design 1 at r=3 and r=4, Design 2, the SVD ablation, and permutation references.
+- `paper/`: LaTeX source, figure and table scripts for the report. `website/dist/`: the demonstration webpage. `deliverables/`: report PDF and download archives.
 - `RESULTS.md`: a summary of all completed runs (Design 1 at r=2, 3, and 4; Design 2; the SVD ablation) and validation checks.
 
 ## Design and implementation
@@ -83,6 +89,48 @@ Products with zero strength or zero embedding rows receive label -1. Optimal lab
 All four methods use the same B within each dataset. Data generation and each method's k-means use independent random substreams. The default root seeds for the pilot, calibration, and Design 1 at r=2 (stage `main`) are 23601, 23602, and 23603, respectively. Dataset and k-means seeds are recorded. The manifest and dataset seed allow reconstruction without storing every B matrix.
 
 The theory module uses a one-dimensional dynamic program for the number of selected products in the preferred category. It computes category second moments for the actual sequential sampling scheme. Conditional exchangeability of other products then gives within-category and between-category pair inclusion probabilities. The reported theoretical values are **unconditional expectations** over independently and uniformly drawn preferred categories. Random variation in preference-group sizes contributes to dataset variability. Count and Weighted expectations are exact up to numerical precision. Jaccard uses an explicitly labeled ratio-of-expectations approximation, not an exact expression for E[J]. Tests check the uniform-sampling formula at r=1 and compare general-r theoretical values against simulation.
+
+## Design 1 at r=3 and r=4, and Design 2 (fixed information)
+
+The r=2 grid lives in `outputs/main/`. The r=3 grid (root seed 23604) and the r=4 grid (root seed 23607) rerun the same 12 conditions with identical code and 100 fresh datasets per condition; their outputs are in `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/`. The folder name `supplement` is kept so that recorded paths and validation hashes stay stable.
+
+The study uses two complementary designs: Design 1 (matched total) holds total purchases fixed, and Design 2 (fixed information) holds the informative users' purchases fixed and adds preference-free heavy buyers. Design 2 was added after the Design 1 results at r=2 showed that the two effects were confounded. It uses 1,000 informative users with settings (m=12, r=2) and (m=6, r=3), then adds A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; A=0 is included once per setting. Each of the 18 cells has 100 replicates (root seed 23605). Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike Design 1.
+
+In the r=3, r=4, and fixed-information datasets, all four methods share a recorded k-means seed within each dataset (and across separation cells within a replicate). This verifies the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
+
+The random-label reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping each method's fitted labels fixed and repeating optimal label matching. It was computed for the r=3, r=4, and Design 2 datasets, where it lies between 62.9% and 63.5%; because the band barely moves across conditions, the same band is used as the reference for r=2. This is a descriptive reference, not an SBM detection threshold. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within Design 2 are correlated. Paired method intervals are unadjusted for multiplicity.
+
+The r=3 grid and Design 2 are run together:
+
+```bash
+python run_experiments.py --stage supplement --workers 4 --resume
+python scripts/validate_supplement.py
+```
+
+On a machine with different Python/package metadata, use a new output folder to reproduce the same statistical design:
+
+```bash
+python run_experiments.py --stage supplement --workers 4 --output outputs/supplement_reproduced
+```
+
+An SVD ablation reruns the unchanged bipartite SVD on the recorded focused high-heterogeneity datasets after removing users with exactly one purchase. It reproduces the saved SVD errors before applying the change:
+
+```bash
+python scripts/svd_ablation.py --workers 4
+```
+
+Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`.
+
+The r=4 grid uses root seed 23607, permutation namespace [23606, 2], 100 datasets per condition, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. r=4 is the upper preference value listed in the proposal. It was run with the locked package versions under Python 3.11.9:
+
+```bash
+python scripts/sensitivity_r4.py --workers 4
+python scripts/build_supplement_materials.py
+```
+
+`scripts/build_user_influence.py` regenerates the focused main datasets from their recorded seeds and draws the report's user-influence figure (`report-assets/user_influence.png`), comparing exact and simulated shares of block contrast supplied by the most active users. Recovery figures in the report and webpage show the random-label reference as a dashed line.
+
+Results for r=3, r=4, Design 2, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the r=3 grid and Design 2; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
 
 ## Outputs
 
@@ -129,58 +177,14 @@ latexmk -pdf report.tex
 cp report.pdf ../deliverables/report.pdf
 ```
 
+If you compile in Overleaf instead, download the PDF and save it as `deliverables/report.pdf` (keep this file name; the README link, the webpage, and the packaging script all use it). Then run `python scripts/package_deliverables.py`, which copies the report to `website/dist/assets/report.pdf` and rebuilds both download archives.
+
 `make_figures.py` regenerates the focused main datasets once to measure user-influence shares and caches them in `paper/data/`.
 
 The responsive demonstration webpage is in `website/dist/index.html`. It works locally without external dependencies and includes interactive preference and density controls. To preview it, run `python -m http.server 8765 --directory website/dist` and visit `http://localhost:8765`. Report and reproducibility downloads are included under `website/dist/assets/`.
 
 `scripts/build_report_assets.py` rebuilds the compact website dataset and auxiliary plots from recorded results.
 
-Before submission, all group members should review the report, confirm author names and the course requirement regarding overlap with existing research, and confirm the webpage is accessible to the intended class audience.
-
 ## GitHub automation and publication
 
-The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow deploys `website/dist` automatically after `Validate project` passes on a push to `main`, so a push that fails validation is not published. It can also be run manually from the Actions tab. Both the repository and the demonstration webpage, including its report and code/results downloads, are public with the owner's authorization.
-
-No course submission has been made. See [the submission checklist](SUBMISSION_CHECKLIST.md) for remaining group confirmations.
-
-## Design 1 at r=3 and r=4, and Design 2 (fixed information)
-
-The r=2 grid lives in `outputs/main/`. The r=3 grid (root seed 23604) and the r=4 grid (root seed 23607) rerun the same 12 conditions with identical code and 100 fresh datasets per condition; their outputs are in `outputs/supplement/sensitivity_r3/` and `outputs/supplement/sensitivity_r4/`. The folder name `supplement` is kept so that recorded paths and validation hashes stay stable.
-
-The study uses two complementary designs: Design 1 (matched total) holds total purchases fixed, and Design 2 (fixed information) holds the informative users' purchases fixed and adds preference-free heavy buyers. Design 2 was added after the matched-total results at r=2 showed that the two effects were confounded. It uses 1,000 informative users with settings (m=12, r=2) and (m=6, r=3), then adds A=50 or 200 uniform, preference-free users with D/m=1, 2, 4, or 8; A=0 is included once per setting. Each of the 18 cells has 100 replicates (root seed 23605). Within a setting/replicate, informative purchases are identical across cells; background users and purchases are nested. Total users and purchases increase with background exposure, unlike Design 1.
-
-In the r=3, r=4, and fixed-information datasets, all four methods share a recorded k-means seed within each dataset (and across separation cells within a replicate). This verifies the exact normalized-matrix equivalence of Count and Weighted when all contributing users have the same degree. The r=2 grid used its original independently recorded method seeds.
-
-A method-specific permutation reference uses 20 random permutations of the balanced true product labels per dataset (seed namespace 23606), keeping fitted labels fixed and repeating optimal label matching. No universal 63% chance-error line or SBM detection threshold is assumed. Per-cell confidence intervals use independent replicate units; comparisons across exposure levels within Design 2 are correlated. Paired method intervals are unadjusted for multiplicity.
-
-The r=3 grid and Design 2 are run together:
-
-```bash
-python run_experiments.py --stage supplement --workers 4 --resume
-python scripts/validate_supplement.py
-```
-
-On a machine with different Python/package metadata, use a new output folder to reproduce the same statistical design:
-
-```bash
-python run_experiments.py --stage supplement --workers 4 --output outputs/supplement_reproduced
-```
-
-An SVD ablation reruns the unchanged bipartite SVD on the recorded focused high-heterogeneity datasets after removing users with exactly one purchase. It reproduces the saved SVD errors before applying the change:
-
-```bash
-python scripts/svd_ablation.py --workers 4
-```
-
-Results are in `outputs/supplement/svd_ablation/` and `report-assets/svd_ablation.md`.
-
-The r=4 grid uses root seed 23607, permutation namespace [23606, 2], 100 datasets per condition, and its own design record in `outputs/supplement/sensitivity_r4/design.json`. r=4 is the upper preference value listed in the proposal. It was run with the locked package versions under Python 3.11.9:
-
-```bash
-python scripts/sensitivity_r4.py --workers 4
-python scripts/build_supplement_materials.py
-```
-
-`scripts/build_user_influence.py` regenerates the focused main datasets from their recorded seeds and draws the report's user-influence figure (`report-assets/user_influence.png`), comparing exact and simulated shares of block contrast supplied by the most active users. Recovery figures in the report and webpage show the random-label reference as a dashed line.
-
-Results for r=3, r=4, Design 2, permutation references, paired intervals, and figures are under `outputs/supplement/`. `supplement.py` runs the r=3 grid and Design 2; `supplement_figures.py` rebuilds plots. The checks verify that the main-result and original-proposal SHA-256 hashes are unchanged.
+The `Validate project` workflow runs unit tests and saved-result/asset checks on pushes and pull requests. The `Publish demonstration webpage` workflow deploys `website/dist` automatically after `Validate project` passes on a push to `main`, so a push that fails validation is not published. It can also be run manually from the Actions tab. Both the repository and the demonstration webpage, including the report and code/results downloads, are public. See [the submission checklist](SUBMISSION_CHECKLIST.md) for the completed materials.
